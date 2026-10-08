@@ -28,7 +28,11 @@ those — may be phrased the posting's way.
 
 ## 3. Draft the CV
 
-Follow `references/writing-rules.md`. Apply provenance per fact. Save as
+Take the header (name, contacts, links, education, languages) from the corpus's
+`_profile.md`. If it's missing, ask the user for those details — don't leave
+placeholders; an ATS can't parse "[email]".
+
+Follow `references/writing-rules.md` and apply provenance per fact. Save as
 `applications/<company>/cv.md`.
 
 ## 4. Draft the cover letter (if asked)

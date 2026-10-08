@@ -54,17 +54,30 @@ def strip_frontmatter(md: str) -> str:
     return body[end + 4:] if end != -1 else md
 
 
+_SUMMARY = re.compile(r"summary|profile|about|objective|о себе|резюме|профиль", re.I)
+
+
 def cv_claims(md: str) -> list[str]:
-    """Bullets with 4+ words, outside any section whose heading names skills."""
-    claims, in_skills = [], False
+    """Bullets with 4+ words outside skills sections, plus the sentences of a
+    summary/profile paragraph — the place a CV most often overclaims ("8 years
+    of…", "led platform teams") and the part bullets-only extraction missed."""
+    claims, in_skills, in_summary = [], False, False
+    summary_text: list[str] = []
     for line in strip_frontmatter(md).splitlines():
         h = re.match(r"^#{1,6}\s+(.*)", line)
         if h:
-            in_skills = "skill" in h.group(1).lower() or "навык" in h.group(1).lower()
+            title = h.group(1).lower()
+            in_skills = "skill" in title or "навык" in title
+            in_summary = bool(_SUMMARY.search(title))
             continue
         m = _BULLET.match(line)
         if m and not in_skills and len(m.group("text").split()) >= 4:
             claims.append(m.group("text").strip())
+        elif in_summary and line.strip():
+            summary_text.append(line.strip())
+    for s in _SENTENCE_END.split(" ".join(summary_text)):
+        if len(s.split()) >= 5:
+            claims.append(s.strip())
     return claims
 
 
@@ -110,10 +123,28 @@ def candidates(claim: str, records: list[dict], vocab: set[str], k: int = TOP_K)
     return [rid for _, rid in scored[:k]]
 
 
+def employers_block(corpus: dict) -> str:
+    """Role, dates, context and stack per employer: what summary lines ("8 years
+    of backend work", "a team of 6") are checked against."""
+    lines = []
+    for f in corpus["files"]:
+        span = f"{f['start']} – {f['end']}" if f["start"] else ""
+        lines.append(f"- {f['company']} ({f['id']}): {f['role']} {span}".rstrip())
+        if f["context"]:
+            lines.append(f"  context: {f['context']}")
+        tags = [*f["stack"], *f["skills"], *f["domains"]]
+        if tags:
+            lines.append("  stack/skills/domains: " + ", ".join(tags))
+    return "\n".join(lines)
+
+
 def evidence_block(rec: dict) -> str:
     lines = [f"### {rec['id']} · {rec['company']} — {rec['title']}", f"what: {rec['what']}"]
     if rec["stack"]:
         lines.append("stack: " + ", ".join(rec["stack"]))
+    also = [*rec["skills"], *rec["jd_keywords"]]
+    if also:  # the user's own words for this fact; a draft may use them
+        lines.append("also described as: " + ", ".join(also))
     for m in rec["metrics"]:
         lines.append(f"metric: {m['value']} ({m['provenance']})")
     if rec["team"]:
@@ -140,6 +171,9 @@ CLAIM below, decide whether the EVIDENCE records support every fact in it
   only for the part claimed as done; hands-on work with the analogue needs its own
   evidence. Recasting a fact into a domain or industry it did not have is not supported.
 - Claim and evidence may be in different languages: compare meaning, not strings.
+- "also described as" lists the candidate's own terms for that fact: a claim using
+  one of them for the fact it belongs to is supported. Durations and titles are
+  checked against EMPLOYERS (e.g. years of experience = the dated roles).
 
 Answer with exactly one JSON object per claim, one per line, nothing else:
 {"n": 1, "supported": true, "evidence_id": "acme-003", "reason": "short reason"}
@@ -155,7 +189,7 @@ def build_packet(doc: str, corpus: dict, kind: str, company: str) -> tuple[str, 
               for i, t in enumerate(texts, 1)]
     full = sum(len(vc.record_text(r)) for r in records) <= FULL_CORPUS_CHARS
     by_id = {r["id"]: r for r in records}
-    out = [JUDGE_INSTRUCTIONS, "## EVIDENCE"]
+    out = [JUDGE_INSTRUCTIONS, "## EMPLOYERS", employers_block(corpus), "## EVIDENCE"]
     if full:
         out += [evidence_block(r) for r in records]
     else:

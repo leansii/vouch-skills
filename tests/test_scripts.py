@@ -77,8 +77,15 @@ def test_lint_reports_duplicate_ids(tmp_path):
 
 def test_cv_claims_skip_skills_and_short_bullets():
     claims = vouch_verify.cv_claims(CV)
-    assert len(claims) == 5
+    assert len(claims) == 6  # 5 bullets + the summary sentence
     assert not any("Python, FastAPI" in c for c in claims)
+    assert claims[-1].startswith("Backend engineer with event-driven")
+
+
+def test_judge_sees_employers_and_the_users_own_terms():
+    text, _ = vouch_verify.build_packet(CV, corpus(), "cv", "")
+    assert "## EMPLOYERS" in text and "Northwind Logistics (northwind): Senior Backend Engineer" in text
+    assert "also described as:" in text and "REST API" in text
 
 
 def test_letter_claims_skip_salutation_and_employer_sentences():
@@ -108,7 +115,8 @@ def test_report_maps_verdicts_through_the_provenance_policy():
     # 1: its figures are the verifiable metric (the record's other metric is an
     #    estimate — that must not soften this line). 4: "12%" is the from-cv metric.
     #    5: no figure, nothing to soften.
-    assert actions == ["keep", "remove_or_verify", "unverified", "flag", "keep"]
+    #    6: the summary sentence got no verdict: unverified, never a pass.
+    assert actions == ["keep", "remove_or_verify", "unverified", "flag", "keep", "unverified"]
 
 
 def test_claim_provenance_reads_the_metrics_the_claim_repeats():
@@ -127,7 +135,7 @@ def test_report_cli_roundtrip(tmp_path):
     cv.write_text(CV, encoding="utf-8")
     assert vouch_verify.main(["packet", str(cv), "--corpus", str(CORPUS), "--out", str(packet)]) == 0
     claims = json.loads((tmp_path / "p.md.claims.json").read_text(encoding="utf-8"))
-    assert len(claims) == 5
+    assert len(claims) == 6
     verdicts = tmp_path / "v.jsonl"
     verdicts.write_text('{"n": 2, "supported": false, "evidence_id": null, "reason": "x"}')
     assert vouch_verify.main(["report", str(packet), str(verdicts), "--corpus", str(CORPUS)]) == 0

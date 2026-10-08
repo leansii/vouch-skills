@@ -6,7 +6,24 @@ facts live here once, addressed by ID, and drafts pull them in.
 ## One file per employer (or project / education block)
 
 File name = a short stable id: `acme.md`, `side-projects.md`. Files starting with
-`_` and `README.md` are ignored by the scripts (use `_gaps.md` for notes).
+`_` and `README.md` are not parsed as employers (use `_gaps.md` for notes).
+
+## `_profile.md` — who you are
+
+The CV header comes from here, never from a placeholder:
+
+```markdown
+name: Alex Example
+email: alex@example.com
+phone: +351 900 000 000
+location: Lisbon, Portugal
+links: [linkedin.com/in/alex-example, github.com/alex-example]
+languages: [English C1, Portuguese B2]
+education: BSc Computer Science, University of Porto, 2018
+```
+
+Contact details matter to an ATS: a CV without a parseable email and phone fails
+the parse check.
 
 ## Frontmatter
 
