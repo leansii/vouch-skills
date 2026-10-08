@@ -28,6 +28,12 @@ Pick the strongest isolation your environment offers:
 3. **No code execution:** do the same by hand: list the bullets (CV) or the
    sentences with numbers/technologies (letter), and judge each against the corpus.
 
+**Never write verdicts without judging each claim against the evidence.** A
+"supported" verdict must cite the id of a real record; the report rejects any
+that doesn't (e.g. `"evidence_id": "manual"`) and shows the line as unverified.
+If you can't run a separate judge, say so and judge each claim yourself — a
+bulk "all supported" is a failed check, not a pass.
+
 Verdict format, one line per claim, nothing else:
 `{"n": 3, "supported": false, "evidence_id": null, "reason": "no record mentions Kafka"}`
 

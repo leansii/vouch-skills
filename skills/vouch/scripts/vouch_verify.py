@@ -176,6 +176,11 @@ CLAIM below, decide whether the EVIDENCE records support every fact in it
   one of them for the fact it belongs to is supported. Durations and titles are
   checked against EMPLOYERS (e.g. years of experience = the dated roles).
 
+"supported": true needs the id of the record that supports it — a verdict that
+cites no real record is rejected by the report. Wishes, plans and opinions
+("I'd love to…", "I enjoy…") assert no fact: mark them supported only if the
+fact they lean on is in the evidence.
+
 Answer with exactly one JSON object per claim, one per line, nothing else:
 {"n": 1, "supported": true, "evidence_id": "acme-003", "reason": "short reason"}
 Use "evidence_id": null when unsupported.
@@ -232,6 +237,14 @@ def build_report(claims: list[dict], verdict_text: str, corpus: dict) -> list[di
                          "reason": "no readable verdict — check this line yourself"})
             continue
         rec = by_id.get(v.get("evidence_id") or "")
+        if v["supported"] and rec is None:
+            # A "supported" that cites no real record is not a verdict — it is
+            # what a model writes when it skips the judging (2026-10-08, a CLI
+            # agent wrote evidence_id "manual" for all 26 CV lines).
+            rows.append({**c, "action": "unverified", "evidence_id": None, "rejected": True,
+                         "reason": f"verdict cites no corpus record ({v.get('evidence_id')!r}) "
+                                   "— not accepted; check this line yourself"})
+            continue
         if not v["supported"]:
             action = vc.GROUNDING["unsupported"]
         else:
@@ -255,7 +268,11 @@ def render_markdown(rows: list[dict]) -> str:
     head = (f"**{counts['keep'] + counts['soften'] + counts['flag']} of {len(rows)} lines "
             f"grounded** · {counts['remove_or_verify']} without evidence · "
             f"{counts['unverified']} unchecked")
+    rejected = sum(1 for r in rows if r.get("rejected"))
     lines = [head, ""]
+    if rejected:
+        lines += [f"⚠ {rejected} verdict(s) said “supported” without citing a corpus record and "
+                  "were not accepted. Re-run the judge on the packet; don't write verdicts by hand.", ""]
     for r in rows:
         if r["action"] == "keep":
             continue

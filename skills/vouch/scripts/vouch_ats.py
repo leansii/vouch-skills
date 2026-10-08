@@ -137,6 +137,10 @@ def _known_to_corpus(term: str, vocabulary: set[str]) -> bool:
     """
     if term in vocabulary:
         return True
+    # "latex" vs the corpus's "xelatex": a longer name ending in the term.
+    # 4+ letters only, so "go" never matches "django".
+    if len(term) >= 4 and any(v.endswith(term) and v != term for v in vocabulary):
+        return True
     singular = term[:-1] if term.endswith("s") and len(term) > 3 else ""
     if singular and singular in vocabulary:
         return True

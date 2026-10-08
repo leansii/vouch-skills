@@ -10,4 +10,6 @@ Rules: `skills/vouch/references/`. Tools (Python 3, no dependencies):
 `skills/vouch/scripts/`.
 
 For verification, judge the packet in a fresh session or sub-agent that receives
-only the packet file, so it never sees how the draft was written.
+only the packet file, so it never sees how the draft was written. Judge every
+claim against the evidence; never fill the verdicts file yourself with blanket
+"supported" lines — the report rejects verdicts that cite no corpus record.

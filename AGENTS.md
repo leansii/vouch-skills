@@ -11,4 +11,6 @@ dependency-free Python tools in `skills/vouch/scripts/` (run with `python3`).
 
 For the verification step, run the judge as a separate sub-task or worker that
 receives only the packet file (`codex exec`, a fresh session, or your tool's
-sub-agent feature) so it never sees how the draft was written.
+sub-agent feature) so it never sees how the draft was written. Never fill the
+verdicts file with blanket "supported" lines — the report rejects verdicts that
+cite no corpus record.

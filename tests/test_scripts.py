@@ -196,3 +196,20 @@ def test_judge_sees_employer_location():
 def test_title_match_ignores_location_suffix():
     title = "Senior Software Engineer (Node/Vue/TypeScript) - Remote Europe"
     assert vouch_ats.title_found(title, "alex example software engineer lisbon")
+
+
+def test_supported_verdict_without_a_real_record_is_rejected():
+    """A CLI agent once wrote {"evidence_id": "manual", "reason": "Manually
+    verified"} for every CV line instead of judging them."""
+    _, claims = vouch_verify.build_packet(CV, corpus(), "cv", "")
+    fake = "\n".join(f'{{"n": {c["n"]}, "supported": true, "evidence_id": "manual", '
+                      '"reason": "Manually verified"}' for c in claims)
+    rows = vouch_verify.build_report(claims, fake, corpus())
+    assert all(r["action"] == "unverified" and r.get("rejected") for r in rows)
+    out = vouch_verify.render_markdown(rows)
+    assert "were not accepted" in out and "0 of 6 lines grounded" in out
+
+
+def test_known_to_corpus_matches_a_longer_name():
+    assert vouch_ats._known_to_corpus("latex", {"xelatex"})
+    assert not vouch_ats._known_to_corpus("go", {"django"})
