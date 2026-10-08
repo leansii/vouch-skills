@@ -165,3 +165,34 @@ def test_ats_reads_docx_without_pandoc(tmp_path, monkeypatch):
         z.writestr("word/document.xml", "<w:p><w:t>Python FastAPI</w:t></w:p><w:p><w:t>Kafka</w:t></w:p>")
     monkeypatch.setattr(vouch_ats.shutil, "which", lambda name: None)
     assert "Python FastAPI" in vouch_ats.extract_text(doc)
+
+
+# --- regressions from the first real-corpus run (Reedsy posting) -----------------
+
+
+def test_names_and_bare_digits_are_not_figures():
+    rec = {"metrics": [{"value": "API cost ~4x lower with 8 GPUs", "provenance": "estimate"},
+                       {"value": "p95 120 ms", "provenance": "verifiable"}]}
+    assert vc.claim_provenance("ran vLLM on 4× A100 with FP8 quantization", rec) == "estimate"
+    assert vc.claim_provenance("ran vLLM on A100 with FP8 quantization", rec) == "verifiable"
+    assert vc.claim_provenance("p95 down to 120 ms on 8 nodes", rec) == "verifiable"
+
+
+def test_slashed_title_terms_and_verb_openers():
+    jd = ("Senior Software Engineer (Node/Vue/TypeScript)\nRESPONSIBILITIES\n"
+          " - Architect and develop highly scalable web applications;\n"
+          " - Evaluate and improve performance;\nREQUIREMENTS\n - Go and Python, CI/CD.")
+    must, _ = vouch_ats.split_requirements(jd, set())
+    assert {"node", "vue", "typescript", "go", "python", "ci/cd"} <= set(must)
+    assert "node/vue/typescript" not in must
+    assert "architect" not in must and "evaluate" not in must
+
+
+def test_judge_sees_employer_location():
+    text, _ = vouch_verify.build_packet(CV, corpus(), "cv", "")
+    assert "Senior Backend Engineer 2021-04 – present · Lisbon / Remote" in text
+
+
+def test_title_match_ignores_location_suffix():
+    title = "Senior Software Engineer (Node/Vue/TypeScript) - Remote Europe"
+    assert vouch_ats.title_found(title, "alex example software engineer lisbon")

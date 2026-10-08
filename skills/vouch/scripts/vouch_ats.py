@@ -376,7 +376,10 @@ _SENTENCE_START = re.compile(r"(?:^|[.!?:;•*\-–—]\s*|\n\s*)$")
 # After a sentence-opening word: a list continues ("Python, Docker", "Go and
 # Python", "Kafka.", "Go / Rust"); anything else — a lowercase word, "&", a
 # second capitalized word ("Optimising AI performance") — reads as prose.
-_LIST_CONTINUES = re.compile(r"[ \t]*(?:[,;./)|]|$|\n|(?:and|or)\b)", re.MULTILINE)
+_LIST_CONTINUES = re.compile(
+    # "Go and Python" continues a list; "Architect and develop" is a verb phrase.
+    r"[ \t]*(?:[,;./)|]|$|\n|(?:and|or)[ \t]+[A-Z])", re.MULTILINE
+)
 
 
 def _mid_sentence(term: str, text: str) -> bool:
@@ -405,6 +408,19 @@ def _keep_term(term: str, chunk: str, vocabulary: set[str]) -> bool:
     return _mid_sentence(term, chunk)
 
 
+def _split_slashed(terms: list[str], vocabulary: set[str]) -> list[str]:
+    """"node/vue/typescript" from a title is three requirements, not one; keep a
+    real compound ("ci/cd", or one the corpus itself uses) whole."""
+    out: list[str] = []
+    for t in terms:
+        parts = [p for p in t.split("/") if p]
+        if "/" in t and t not in vocabulary and (len(parts) >= 3 or all(p in vocabulary for p in parts)):
+            out += [p for p in parts if p not in out]
+        elif t not in out:
+            out.append(t)
+    return out
+
+
 def split_requirements(jd_text: str, vocabulary: set[str]) -> tuple[list[str], list[str]]:
     """(must_have, nice_to_have) terms. Company sections are dropped first; then
     text after a nice-to-have marker counts as nice until a must marker resumes;
@@ -421,7 +437,7 @@ def split_requirements(jd_text: str, vocabulary: set[str]) -> tuple[list[str], l
     for (start, kind), (end, _) in zip(bounds, bounds[1:], strict=False):
         chunk = jd_text[start:end]
         terms = [*extract_jd_requirements(chunk), *sorted(extract_jd_terms(chunk, vocabulary))]
-        for t in terms:
+        for t in _split_slashed(terms, vocabulary):
             if _keep_term(t, chunk, vocabulary):
                 (nice if kind == "nice" else must).setdefault(t, None)
     for t in must:  # named as both: the stricter reading wins
@@ -528,6 +544,7 @@ _SENIORITY = re.compile(
 def title_found(title: str, text_lower: str) -> bool:
     """The JD's job title (minus seniority) appears in the CV — ATS search and
     ranking both lean on title match."""
+    title = re.split(r"\s[-–—|]\s", title)[0]  # "… - Remote Europe", "… | Berlin"
     core = _SENIORITY.sub("", re.sub(r"\(.*?\)", "", title)).strip(" ,.-").lower()
     return bool(core) and core in text_lower
 

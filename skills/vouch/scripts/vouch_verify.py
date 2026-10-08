@@ -129,7 +129,8 @@ def employers_block(corpus: dict) -> str:
     lines = []
     for f in corpus["files"]:
         span = f"{f['start']} – {f['end']}" if f["start"] else ""
-        lines.append(f"- {f['company']} ({f['id']}): {f['role']} {span}".rstrip())
+        where = f" · {f['location']}" if f["location"] else ""
+        lines.append(f"- {f['company']} ({f['id']}): {f['role']} {span}{where}".rstrip())
         if f["context"]:
             lines.append(f"  context: {f['context']}")
         tags = [*f["stack"], *f["skills"], *f["domains"]]

@@ -220,7 +220,14 @@ def record_provenance(rec: dict | None) -> str | None:
     return max((m["provenance"] for m in rec["metrics"]), key=_CAUTION.index)
 
 
-_NUM = re.compile(r"\d+(?:[.,]\d+)?")
+# A figure: digits not glued to letters ("A100", "FP8", "S3" are names, not
+# metrics). Single digits count only with a unit sign ("4x", "3%"): "a team of
+# 4" style counts are checked by the judge, and bare digits collide by chance;
+# a scale word or suffix ("5 million", "3k") makes a single digit a figure.
+_NUM = re.compile(
+    r"(?<![A-Za-z\d])(\d+(?:[.,]\d+)?)"
+    r"(\s?(?:[%x×]|million|billion|thousand|млн|млрд|тыс)|[kKmM](?![A-Za-z]))?(?![A-Za-z\d])"
+)
 
 
 _YEAR = re.compile(r"^(19[5-9]\d|20[0-4]\d)$")
@@ -229,7 +236,13 @@ _YEAR = re.compile(r"^(19[5-9]\d|20[0-4]\d)$")
 def _numbers(text: str) -> set[str]:
     """Figures in a text. Years are dates, checked against employer dates — not
     metrics ("working in Python since 2018" has nothing to soften)."""
-    return {n.replace(",", "") for n in _NUM.findall(text) if not _YEAR.match(n)}
+    out = set()
+    for num, unit in _NUM.findall(text):
+        num = num.replace(",", "")
+        if _YEAR.match(num) or (len(num) == 1 and not unit):
+            continue
+        out.add(num)
+    return out
 
 
 def claim_provenance(claim: str, rec: dict | None) -> str | None:
