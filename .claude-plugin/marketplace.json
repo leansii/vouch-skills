@@ -1,0 +1,16 @@
+{
+  "name": "vouch",
+  "owner": {
+    "name": "leansii"
+  },
+  "metadata": {
+    "description": "Vouch: honest, job-tailored resumes and cover letters, checked line by line against your own experience."
+  },
+  "plugins": [
+    {
+      "name": "vouch",
+      "source": "./",
+      "description": "Honest, job-tailored resumes with per-line grounding and an ATS simulation."
+    }
+  ]
+}

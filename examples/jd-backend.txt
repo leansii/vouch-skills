@@ -1,0 +1,15 @@
+Senior Backend Engineer (Payments Platform)
+
+We build payment infrastructure for online marketplaces.
+
+Requirements:
+- 5+ years of backend development in Python or Go
+- REST API design and PostgreSQL
+- Event-driven systems with Kafka
+- Kubernetes and CI/CD
+- Experience mentoring engineers
+
+Nice to have: Rust, payments domain experience.
+
+About us
+We are a remote-first team headquartered in Amsterdam. Competitive salary, flexible hours.
