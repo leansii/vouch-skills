@@ -223,8 +223,13 @@ def record_provenance(rec: dict | None) -> str | None:
 _NUM = re.compile(r"\d+(?:[.,]\d+)?")
 
 
+_YEAR = re.compile(r"^(19[5-9]\d|20[0-4]\d)$")
+
+
 def _numbers(text: str) -> set[str]:
-    return {n.replace(",", "") for n in _NUM.findall(text)}
+    """Figures in a text. Years are dates, checked against employer dates — not
+    metrics ("working in Python since 2018" has nothing to soften)."""
+    return {n.replace(",", "") for n in _NUM.findall(text) if not _YEAR.match(n)}
 
 
 def claim_provenance(claim: str, rec: dict | None) -> str | None:

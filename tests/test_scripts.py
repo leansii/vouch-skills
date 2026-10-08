@@ -127,6 +127,7 @@ def test_claim_provenance_reads_the_metrics_the_claim_repeats():
     assert vc.claim_provenance("rewrote the API in FastAPI", nw) == "verifiable"  # no figure
     assert vc.claim_provenance("served 5 million users", nw) == "estimate"  # unmatched: cautious
     assert vc.claim_provenance("anything", None) is None
+    assert vc.claim_provenance("working in Python since 2018", nw) == "verifiable"  # a year
 
 
 def test_report_cli_roundtrip(tmp_path):
