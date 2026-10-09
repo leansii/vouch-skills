@@ -1,6 +1,6 @@
 ---
 name: vouch-corpus
-description: Build or extend the user's experience corpus for Vouch: one Markdown file per employer, one record per achievement, every number tagged by provenance (verifiable / estimate / from-cv / cannot-confirm) through a short interview. Use when the user wants to set up their experience for honest resume tailoring, shares an old CV or LinkedIn export to turn into a corpus, or says 'add this to my corpus'.
+description: "Build or extend the user's experience corpus for Vouch: one Markdown file per employer, one record per achievement, every number tagged by provenance (verifiable / estimate / from-cv / cannot-confirm) through a short interview. Use when the user wants to set up their experience for honest resume tailoring, shares an old CV or LinkedIn export to turn into a corpus, or says 'add this to my corpus'."
 license: MIT
 ---
 

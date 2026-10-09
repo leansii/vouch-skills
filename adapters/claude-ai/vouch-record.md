@@ -1,6 +1,6 @@
 ---
 name: vouch-record
-description: Add an achievement, project or job to the user's Vouch experience corpus through a short guided conversation: invite a detailed story, ask only for what's missing (their own part vs the team's, scale, before/after, how sure each number is), then write a record. Use when the user wants to describe what they did, add experience, or says 'add this to my corpus'.
+description: "Add an achievement, project or job to the user's Vouch experience corpus through a short guided conversation: invite a detailed story, ask only for what's missing (their own part vs the team's, scale, before/after, how sure each number is), then write a record. Use when the user wants to describe what they did, add experience, or says 'add this to my corpus'."
 license: MIT
 ---
 

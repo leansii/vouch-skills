@@ -1,6 +1,6 @@
 ---
 name: vouch-ats
-description: Simulate an applicant-tracking system on a CV: parse it like an ATS, find the job posting's must-have and nice-to-have keywords, and split what's missing into dropped facts (the user's corpus has them) and true gaps (it doesn't - never add those). Use for 'ATS check', 'will an ATS find my resume', or after vouch-tailor drafts a CV.
+description: "Simulate an applicant-tracking system on a CV: parse it like an ATS, find the job posting's must-have and nice-to-have keywords, and split what's missing into dropped facts (the user's corpus has them) and true gaps (it doesn't - never add those). Use for 'ATS check', 'will an ATS find my resume', or after vouch-tailor drafts a CV."
 license: MIT
 ---
 

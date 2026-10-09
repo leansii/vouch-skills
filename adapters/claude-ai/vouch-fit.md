@@ -1,6 +1,6 @@
 ---
 name: vouch-fit
-description: Decide whether a job posting is worth applying to before writing anything: is it still open (ATS API, validThrough, closed-posting phrases), does it rule the user out (no visa sponsorship, must be based in X, a language they don't speak - quoted), and how much of it their Vouch experience corpus can honestly carry (fit 1-5, covered must-haves, true gaps). Use for 'should I apply', 'is this job still open', 'am I a fit', or before vouch-tailor.
+description: "Decide whether a job posting is worth applying to before writing anything: is it still open (ATS API, validThrough, closed-posting phrases), does it rule the user out (no visa sponsorship, must be based in X, a language they don't speak - quoted), and how much of it their Vouch experience corpus can honestly carry (fit 1-5, covered must-haves, true gaps). Use for 'should I apply', 'is this job still open', 'am I a fit', or before vouch-tailor."
 license: MIT
 ---
 

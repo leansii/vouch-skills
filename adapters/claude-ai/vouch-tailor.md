@@ -1,6 +1,6 @@
 ---
 name: vouch-tailor
-description: Tailor a CV and cover letter to a job posting using only facts from the user's Vouch experience corpus: provenance decides wording, attribution stays exact, no gap talk, no domain recasting. Use when the user pastes a job description or URL and asks for a tailored resume or cover letter. Run vouch-fit first; after drafting, run the vouch-verify and vouch-ats skills.
+description: "Tailor a CV and cover letter to a job posting using only facts from the user's Vouch experience corpus: provenance decides wording, attribution stays exact, no gap talk, no domain recasting. Use when the user pastes a job description or URL and asks for a tailored resume or cover letter. Run vouch-fit first; after drafting, run the vouch-verify and vouch-ats skills."
 license: MIT
 ---
 

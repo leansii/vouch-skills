@@ -12,6 +12,7 @@ it needs, and the scripts it runs embedded as code blocks that Claude writes to
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -143,7 +144,8 @@ def build(name: str, spec: dict) -> str:
     parts = [
         "---",
         f"name: {name}",
-        f"description: {spec['description']}",
+        # Quoted: descriptions contain ": ", which plain YAML scalars can't hold.
+        f"description: {json.dumps(spec['description'], ensure_ascii=False)}",
         "license: MIT",
         "---",
         "",

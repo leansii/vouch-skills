@@ -1,6 +1,6 @@
 ---
 name: vouch-verify
-description: Check a CV or cover letter line by line against the user's Vouch experience corpus: code extracts claims and evidence, each claim is judged strictly from the evidence, and code maps verdicts to keep / soften / flag / remove. Use when the user asks whether their CV is honest, wants claims checked, or after vouch-tailor drafts a document.
+description: "Check a CV or cover letter line by line against the user's Vouch experience corpus: code extracts claims and evidence, each claim is judged strictly from the evidence, and code maps verdicts to keep / soften / flag / remove. Use when the user asks whether their CV is honest, wants claims checked, or after vouch-tailor drafts a document."
 license: MIT
 ---
 

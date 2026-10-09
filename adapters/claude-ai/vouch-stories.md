@@ -1,6 +1,6 @@
 ---
 name: vouch-stories
-description: Build and use an interview story bank (STAR + Reflection) from the user's Vouch experience corpus: each story is anchored to the records it retells, and code checks it states no figure those records don't. For a posting, ranks stories by the must-haves they cover. Use for 'prepare me for the interview', 'what stories should I tell', 'build my story bank'.
+description: "Build and use an interview story bank (STAR + Reflection) from the user's Vouch experience corpus: each story is anchored to the records it retells, and code checks it states no figure those records don't. For a posting, ranks stories by the must-haves they cover. Use for 'prepare me for the interview', 'what stories should I tell', 'build my story bank'."
 license: MIT
 ---
 
