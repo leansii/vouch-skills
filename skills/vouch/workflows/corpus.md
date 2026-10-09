@@ -20,7 +20,10 @@ corpus can never appear in a draft, and an untagged number can't be checked.
 4. **Draft one file per employer.** For a new employer you can start from
    `python3 scripts/vouch_corpus.py new <dir> <id> "<Company>" "<Role>" <YYYY-MM> [end]`.
    Split each role into records — one achievement each, with `what`, `stack`,
-   `jd-keywords` and a `team:` line whenever others were involved.
+   `jd-keywords` and a `team:` line whenever others were involved. An old CV
+   gives one-line bullets; for each role, invite the user to tell the full story
+   behind its 2–3 most important bullets — use the prompt and the weak-vs-strong
+   example in `references/record-guide.md`, and the steps of `workflows/record.md`.
 
 5. **Interview for provenance — the important part.** For every number, ask:
    "Can you back this up — a link, a dashboard, a person who'd confirm it?"

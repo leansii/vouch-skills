@@ -1,6 +1,6 @@
 ---
 name: vouch
-description: Honest, job-tailored resumes and cover letters where every line traces to the user's real experience. Use when the user wants to build or update their experience corpus, tailor a CV or cover letter to a job posting, check a CV/letter for fabricated or inflated claims, or check how an ATS would parse it and which job keywords it finds. Triggers - "tailor my resume", "cover letter for this job", "is my CV honest", "check my resume against this posting", "ATS check", "build my experience corpus", "add this to my corpus", a pasted job description or job URL with a resume request.
+description: Honest, job-tailored resumes and cover letters where every line traces to the user's real experience. Use when the user wants to build or update their experience corpus, describe an achievement or project for it, tailor a CV or cover letter to a job posting, check a CV/letter for fabricated or inflated claims, or check how an ATS would parse it and which job keywords it finds. Triggers - "tailor my resume", "cover letter for this job", "is my CV honest", "check my resume against this posting", "ATS check", "build my experience corpus", "add this to my corpus", "I want to describe what I did at", a pasted job description or job URL with a resume request.
 license: MIT
 ---
 
@@ -32,7 +32,8 @@ Pick one by intent and read its file before starting:
 
 | The user wants to… | Read |
 |---|---|
-| create or extend their experience corpus | `workflows/corpus.md` |
+| create their experience corpus (from an old CV, LinkedIn, or scratch) | `workflows/corpus.md` |
+| add or describe one achievement / project / job | `workflows/record.md` |
 | tailor a CV and/or cover letter to a posting | `workflows/tailor.md` (runs verify + ATS at the end) |
 | check an existing CV/letter for unsupported claims | `workflows/verify.md` |
 | see how an ATS reads a CV and which keywords it finds | `workflows/ats.md` |

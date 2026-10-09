@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "adapters" / "claude-ai"
-NAMES = ("vouch-corpus", "vouch-tailor", "vouch-verify", "vouch-ats")
+NAMES = ("vouch-corpus", "vouch-record", "vouch-tailor", "vouch-verify", "vouch-ats")
 
 
 def _blocks(md: str) -> dict[str, str]:

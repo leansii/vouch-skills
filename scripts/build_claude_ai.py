@@ -32,7 +32,19 @@ SKILLS = {
             "into a corpus, or says 'add this to my corpus'."
         ),
         "workflow": "corpus.md",
-        "references": ["corpus-schema.md", "provenance.md"],
+        "references": ["corpus-schema.md", "provenance.md", "record-guide.md"],
+        "scripts": ["vouch_common.py", "vouch_corpus.py"],
+    },
+    "vouch-record": {
+        "description": (
+            "Add an achievement, project or job to the user's Vouch experience corpus through a "
+            "short guided conversation: invite a detailed story, ask only for what's missing (their "
+            "own part vs the team's, scale, before/after, how sure each number is), then write a "
+            "record. Use when the user wants to describe what they did, add experience, or says "
+            "'add this to my corpus'."
+        ),
+        "workflow": "record.md",
+        "references": ["record-guide.md", "corpus-schema.md", "provenance.md"],
         "scripts": ["vouch_common.py", "vouch_corpus.py"],
     },
     "vouch-tailor": {

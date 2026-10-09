@@ -66,7 +66,7 @@ a prompt. Any model can do the writing and judging.
 | Tool | How |
 |---|---|
 | **Claude Code** | `/plugin marketplace add leansii/vouch-skills` then `/plugin install vouch@vouch` |
-| **claude.ai** | Four single-file skills in [adapters/claude-ai](adapters/claude-ai/README.md): Settings → Customize → Skills → Add → Upload a skill, select the four `.md` files. Turn on code execution in Capabilities. |
+| **claude.ai** | Five single-file skills in [adapters/claude-ai](adapters/claude-ai/README.md): Settings → Customize → Skills → Add → Upload a skill, select the five `.md` files. Turn on code execution in Capabilities. |
 | **Codex / OpenCode / Pi / Cursor** | Clone this repo and open it, or copy `skills/vouch/` into your tool's skills folder. `AGENTS.md` points the agent at the skill. |
 | **Gemini CLI / Antigravity** | `gemini extensions install https://github.com/leansii/vouch-skills` (uses `GEMINI.md`), or clone and open the folder. |
 | **ChatGPT** | A Custom GPT — see [adapters/chatgpt](adapters/chatgpt/README.md). |

@@ -3,6 +3,10 @@
 Inputs: the corpus folder, the job posting (text, file or URL), optionally the
 user's master CV and writing samples for voice.
 
+Deliver **both a CV and a cover letter** unless the user asks for only one —
+most applications ask for both, and writing the letter from the same selected
+facts keeps the two consistent.
+
 ## 1. Get the posting as text
 
 - Pasted text or a file → use it.
@@ -35,7 +39,7 @@ placeholders; an ATS can't parse "[email]".
 Follow `references/writing-rules.md` and apply provenance per fact. Save as
 `applications/<company>/cv.md`.
 
-## 4. Draft the cover letter (if asked)
+## 4. Draft the cover letter
 
 Same rules, letter shape. Cite only achievements the tailored CV states. Save as
 `applications/<company>/cover-letter.md`.

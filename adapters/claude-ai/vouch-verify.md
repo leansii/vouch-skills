@@ -655,6 +655,31 @@ def _parse_verdicts(text: str) -> dict[int, dict]:
     return found
 
 
+def _derived_years(corpus: dict, today: tuple[int, int] | None = None) -> set[str]:
+    """Year counts the corpus implies through dates: each role's length and the
+    span from the earliest start. "7+ years" is checkable this way even though no
+    record writes the number (the judge still decides if the claim is fair)."""
+    import datetime
+
+    now = today or (datetime.date.today().year, datetime.date.today().month)
+
+    def ym(s: str):
+        m = re.match(r"^(\d{4})(?:-(\d{2}))?$", s or "")
+        return (int(m.group(1)), int(m.group(2) or 1)) if m else None
+
+    spans, starts = set(), []
+    for f in corpus["files"]:
+        a = ym(f["start"])
+        b = now if f["end"] in ("present", "now", "current", "") else ym(f["end"])
+        if a and b:
+            starts.append(a)
+            spans.add(max(0, (b[0] * 12 + b[1] - a[0] * 12 - a[1]) // 12))
+    if starts:
+        a = min(starts)
+        spans.add((now[0] * 12 + now[1] - a[0] * 12 - a[1]) // 12)
+    return {str(n) for n in spans if n >= 1}
+
+
 def build_report(claims: list[dict], verdict_text: str, corpus: dict) -> list[dict]:
     by_id = {r["id"]: r for r in vc.all_records(corpus)}
     verdicts = _parse_verdicts(verdict_text)
@@ -662,6 +687,7 @@ def build_report(claims: list[dict], verdict_text: str, corpus: dict) -> list[di
     # was invented or inflated ("8+ years", "93-96%") — code says so, whatever
     # a lenient judge in the drafting context decided (2026-10-09, Antigravity).
     known = set().union(*(vc.figures(vc.record_text(r)) for r in by_id.values()), set())
+    known |= _derived_years(corpus)
     rows = []
     for c in claims:
         v = verdicts.get(c["n"])

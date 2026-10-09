@@ -224,7 +224,8 @@ def test_supported_claim_with_a_figure_the_corpus_lacks_is_overruled():
         '{"n": 2, "supported": true, "evidence_id": "northwind-001", "reason": "Grafana"}',
     ])
     rows = vouch_verify.build_report(claims, verdicts, corpus())
-    assert rows[0]["action"] == "remove_or_verify" and "8, 93" in rows[0]["reason"]
+    # 8 years is implied by the dated roles (2018-09 -> now); 93% is stated nowhere.
+    assert rows[0]["action"] == "remove_or_verify" and "figure(s) 93 " in rows[0]["reason"]
     assert rows[1]["action"] == "keep"
 
 
@@ -232,3 +233,13 @@ def test_ats_ignores_places_and_unrelated_suffix_matches():
     assert not vouch_ats._known_to_corpus("less", {"serverless"})
     must, _ = vouch_ats.split_requirements("Engineer (Vue) - Remote Europe\nRequirements: Vue.", set())
     assert "europe" not in must and "remote" not in must
+
+
+def test_years_of_experience_derive_from_employer_dates():
+    """ "7+ years" appears in no record, but the dated roles imply it."""
+    years = vouch_verify._derived_years(corpus(), today=(2026, 10))
+    assert "8" in years  # shopkit 2018-09 -> 2026-10 is the earliest start
+    claims = [{"n": 1, "text": "Backend engineer with 8+ years in Python.", "candidates": []}]
+    v = '{"n": 1, "supported": true, "evidence_id": "northwind-001", "reason": "dated roles"}'
+    rows = vouch_verify.build_report(claims, v, corpus())
+    assert rows[0]["action"] != "remove_or_verify"
