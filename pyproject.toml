@@ -1,6 +1,6 @@
 [project]
 name = "vouch-skills"
-version = "0.1.5"
+version = "0.1.6"
 description = "Vouch: honest, job-tailored resumes as an Agent Skill (scripts are stdlib-only)"
 requires-python = ">=3.9"
 license = { text = "MIT" }
