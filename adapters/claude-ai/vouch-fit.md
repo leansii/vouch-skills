@@ -57,7 +57,7 @@ It reports:
   write a line from: suggest adding a record (the vouch-record skill) if it's real.
 - **Eligibility** — quoted sentences that may rule the user out: no visa
   sponsorship, must be based in X, a region they don't live in ("Remote Europe"
-  vs a `location:` in Bangkok), a language their `_profile.md` doesn't list.
+  vs a `location:` in Lima), a language their `_profile.md` doesn't list.
   Never averaged into the score: a perfect match can still be impossible.
 
 Treat the term lists as a rough cut — the extractor is lexical and lets some

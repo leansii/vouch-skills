@@ -102,7 +102,7 @@ def test_story_with_a_new_figure_or_dangling_anchor_fails(tmp_path):
 
 def test_location_region_is_checked_against_the_profile():
     jd = "Senior Engineer - Remote Europe\nWe welcome applicants based anywhere in Europe."
-    far = vouch_fit.check_eligibility(jd, {"location": "Bangkok, Thailand · open to relocation"})
+    far = vouch_fit.check_eligibility(jd, {"location": "Lima, Peru · open to relocation"})
     assert far["verdict"] == "warning" and far["findings"][0]["kind"] == "location"
     assert vouch_fit.check_eligibility(jd, {"location": "Lisbon, Portugal"})["verdict"] == "clear"
     assert vouch_fit.check_eligibility("Remote (US only).", {})["verdict"] == "warning"
