@@ -332,6 +332,49 @@ def load_corpus(root: str | Path) -> dict:
     return {"root": str(root), "files": files}
 
 
+STORY_PARTS = ("situation", "task", "action", "result", "reflection")
+
+
+def load_stories(root: str | Path) -> list[dict]:
+    """STAR + Reflection interview stories from `_stories.md` in the corpus folder.
+
+    Same block shape as records (`### id · Title` + `- key: value`); a part may
+    run over several lines until the next `- key:`. `anchors` are the record ids
+    a story retells — it may say nothing those records don't.
+    """
+    path = Path(root).expanduser() / "_stories.md"
+    if not path.is_file():
+        return []
+    text = path.read_text(encoding="utf-8")
+    body = text.split("## Stories", 1)[-1]
+    stories = []
+    for block in re.split(r"(?m)^###\s+", body)[1:]:
+        head, _, rest = block.partition("\n")
+        m = _RECORD_HEADER.match("### " + head.strip())
+        if not m:
+            continue
+        st = {"id": m.group("id"), "title": m.group("title"), "anchors": [], "tags": [],
+              **{k: "" for k in STORY_PARTS}}
+        current = ""
+        for line in rest.splitlines():
+            f = _FIELD.match(line.strip())
+            if f:
+                key, val = f.group("key").lower(), f.group("val").strip()
+                current = key if key in STORY_PARTS else ""
+                if current:
+                    st[key] = val
+                elif key in ("anchors", "tags"):
+                    st[key] = bracket_list(val)
+            elif current and line.strip():
+                st[current] = (st[current] + " " + line.strip()).strip()
+        stories.append(st)
+    return stories
+
+
+def story_text(st: dict) -> str:
+    return " ".join(st[k] for k in STORY_PARTS if st[k])
+
+
 def _as_list(val) -> list[str]:
     if isinstance(val, list):
         return [str(x) for x in val if str(x).strip()]

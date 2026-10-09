@@ -77,6 +77,14 @@ Rules the scripts rely on:
 See `provenance.md`. Tag every number. A number in `what:` with no tagged metric
 can't be checked — `vouch_corpus.py lint` points these out.
 
+## `_stories.md` — interview stories (optional)
+
+STAR + Reflection stories, each anchored to the records it retells:
+`### st-001 · Title`, then `- anchors: [id, …]`, `- tags: […]` and one line (or
+paragraph) each for `situation`, `task`, `action`, `result`, `reflection`.
+`vouch_corpus.py stories` checks the anchors and that no figure appears that the
+anchored records don't state. Format and workflow: `workflows/stories.md`.
+
 ## Gaps
 
 What you don't have is information too: note it in `_gaps.md` or a record's

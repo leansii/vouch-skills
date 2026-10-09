@@ -1,6 +1,6 @@
 ---
 name: vouch
-description: Honest, job-tailored resumes and cover letters where every line traces to the user's real experience. Use when the user wants to build or update their experience corpus, describe an achievement or project for it, tailor a CV or cover letter to a job posting, check a CV/letter for fabricated or inflated claims, or check how an ATS would parse it and which job keywords it finds. Triggers - "tailor my resume", "cover letter for this job", "is my CV honest", "check my resume against this posting", "ATS check", "build my experience corpus", "add this to my corpus", "I want to describe what I did at", a pasted job description or job URL with a resume request.
+description: Honest, job-tailored resumes and cover letters where every line traces to the user's real experience. Use when the user wants to build or update their experience corpus, describe an achievement or project for it, tailor a CV or cover letter to a job posting, check a CV/letter for fabricated or inflated claims, check how an ATS would parse it and which job keywords it finds, decide whether a posting is worth applying to (still open, eligibility, fit), or prepare interview stories from their real experience. Triggers - "tailor my resume", "cover letter for this job", "is my CV honest", "check my resume against this posting", "ATS check", "should I apply", "is this job still open", "prepare me for the interview", "build my experience corpus", "add this to my corpus", "I want to describe what I did at", a pasted job description or job URL with a resume request.
 license: MIT
 ---
 
@@ -34,9 +34,11 @@ Pick one by intent and read its file before starting:
 |---|---|
 | create their experience corpus (from an old CV, LinkedIn, or scratch) | `workflows/corpus.md` |
 | add or describe one achievement / project / job | `workflows/record.md` |
-| tailor a CV and/or cover letter to a posting | `workflows/tailor.md` (runs verify + ATS at the end) |
+| know whether a posting is worth applying to (open? eligible? fit?) | `workflows/fit.md` |
+| tailor a CV and/or cover letter to a posting | `workflows/tailor.md` (runs fit first, verify + ATS at the end) |
 | check an existing CV/letter for unsupported claims | `workflows/verify.md` |
 | see how an ATS reads a CV and which keywords it finds | `workflows/ats.md` |
+| prepare interview stories (STAR) from the corpus | `workflows/stories.md` |
 
 No corpus yet? Start with `workflows/corpus.md` — the other workflows need it.
 

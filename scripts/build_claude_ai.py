@@ -52,11 +52,36 @@ SKILLS = {
             "Tailor a CV and cover letter to a job posting using only facts from the user's Vouch "
             "experience corpus: provenance decides wording, attribution stays exact, no gap talk, no "
             "domain recasting. Use when the user pastes a job description or URL and asks for a "
-            "tailored resume or cover letter. After drafting, run the vouch-verify and vouch-ats skills."
+            "tailored resume or cover letter. Run vouch-fit first; after drafting, run the vouch-verify and vouch-ats skills."
         ),
         "workflow": "tailor.md",
         "references": ["writing-rules.md", "provenance.md", "corpus-schema.md"],
         "scripts": ["vouch_common.py", "vouch_corpus.py"],
+    },
+    "vouch-fit": {
+        "description": (
+            "Decide whether a job posting is worth applying to before writing anything: is it "
+            "still open (ATS API, validThrough, closed-posting phrases), does it rule the user out "
+            "(no visa sponsorship, must be based in X, a language they don't speak - quoted), and "
+            "how much of it their Vouch experience corpus can honestly carry (fit 1-5, covered "
+            "must-haves, true gaps). Use for 'should I apply', 'is this job still open', 'am I a "
+            "fit', or before vouch-tailor."
+        ),
+        "workflow": "fit.md",
+        "references": [],
+        "scripts": ["vouch_common.py", "vouch_ats.py", "vouch_fit.py"],
+    },
+    "vouch-stories": {
+        "description": (
+            "Build and use an interview story bank (STAR + Reflection) from the user's Vouch "
+            "experience corpus: each story is anchored to the records it retells, and code checks "
+            "it states no figure those records don't. For a posting, ranks stories by the "
+            "must-haves they cover. Use for 'prepare me for the interview', 'what stories should I "
+            "tell', 'build my story bank'."
+        ),
+        "workflow": "stories.md",
+        "references": ["provenance.md"],
+        "scripts": ["vouch_common.py", "vouch_ats.py", "vouch_corpus.py"],
     },
     "vouch-verify": {
         "description": (

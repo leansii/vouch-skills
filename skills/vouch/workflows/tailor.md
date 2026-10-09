@@ -18,6 +18,12 @@ facts keeps the two consistent.
   as JSON. Lever: `https://api.lever.co/v0/postings/<company>/<id>`.
 - Save it as `applications/<company>/jd.txt`.
 
+## 1b. Fit check
+
+Run `workflows/fit.md` (liveness when you have a URL, then fit + eligibility) and
+show the user the one-paragraph result. Go on unless the posting is closed or the
+user says stop — a low score is information, not a veto.
+
 ## 2. Select facts (before writing anything)
 
 Read the corpus (`python3 scripts/vouch_corpus.py json <dir>` gives it parsed).

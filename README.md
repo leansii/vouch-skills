@@ -56,7 +56,11 @@ what catches it.
    do, finds the posting's must-haves, and splits what's missing into **dropped
    facts** (you have them, the CV didn't say them — fix) and **true gaps** (you
    don't — leave them out). The score can only go up honestly.
-5. **You send.** Nothing is submitted, emailed or posted. Ever.
+5. **Before and after.** *Fit* checks a posting first — still open? anything
+   that rules you out (no visa sponsorship, must be based in X)? how much of it
+   your corpus honestly covers? *Stories* turns records into STAR interview
+   stories that code checks against the same records.
+6. **You send.** Nothing is submitted, emailed or posted. Ever.
 
 The decisions — what counts as a claim, what evidence the judge sees, what a
 verdict means — live in dependency-free Python (`skills/vouch/scripts/`), not in
@@ -67,7 +71,7 @@ a prompt. Any model can do the writing and judging.
 | Tool | How | Tested |
 |---|---|---|
 | **Claude Code** | `/plugin marketplace add leansii/vouch-skills` then `/plugin install vouch@vouch` | ✅ end to end; the judge runs as a separate `vouch-judge` subagent |
-| **claude.ai** | Five single-file skills in [adapters/claude-ai](adapters/claude-ai/README.md): Settings → Customize → Skills → Add → Upload a skill, select the five `.md` files. Code execution must be on. | ✅ verify, ATS, tailor; the judge runs in the same chat |
+| **claude.ai** | Seven single-file skills in [adapters/claude-ai](adapters/claude-ai/README.md): Settings → Customize → Skills → Add → Upload a skill, select the seven `.md` files. | ✅ verify, ATS, tailor; the judge runs in the same chat |
 | **Antigravity / Gemini CLI** | `agy plugin install <path to a clone>` or `gemini extensions install https://github.com/leansii/vouch-skills` (uses `GEMINI.md`) | ✅ end to end; the judge runs as a subagent |
 | **Codex / OpenCode / Cursor** | Clone this repo and open it, or copy `skills/vouch/` into your tool's skills folder. `AGENTS.md` points the agent at the skill. | not yet — reports welcome |
 | **ChatGPT** | A Custom GPT — see [adapters/chatgpt](adapters/chatgpt/README.md). | not yet — reports welcome |
@@ -84,15 +88,16 @@ Python 3.9+ for the scripts (standard library only). Optional: `pdftotext`
 
 ## Status
 
-v0.1 — corpus, tailor, verify and ATS workflows. Next: job-fit scoring and
-posting-liveness checks, an integration with
-[career-ops](https://github.com/santifer/career-ops) to verify the CVs it
-generates, and a public eval of how often popular models invent resume lines.
+v0.2 — corpus, record, fit, tailor, verify, ATS and interview-story workflows.
+Next: an integration with [career-ops](https://github.com/santifer/career-ops)
+to verify the CVs it generates, and a public eval of how often popular models
+invent resume lines.
 
-Vouch grew out of a Telegram bot with a measured pipeline (98–99% of generated
-lines grounded on its eval set). Some ideas — no gap apologies, honest skill
-transfer — were sharpened by career-ops, which is MIT-licensed and worth a look
-if you want a full job-search command center.
+Vouch grew out of a Telegram bot with a measured pipeline: on a hand-labelled set
+of 342 claims its judge scores 97% accuracy, missing 1 of 52 fabrications with a
+3% false-alarm rate. Some ideas — no gap apologies, honest skill transfer, the
+posting-liveness phrases — come from career-ops, which is MIT-licensed and worth
+a look if you want a full job-search command center.
 
 ## License
 

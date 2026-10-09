@@ -5,6 +5,7 @@
     python vouch_corpus.py summary DIR       # what's in it, provenance mix
     python vouch_corpus.py json DIR          # the parsed corpus, for other tools
     python vouch_corpus.py new DIR ID "Company" "Role" START [END]
+    python vouch_corpus.py stories DIR [--jd JD.txt]   # check stories; rank them for a posting
 """
 
 from __future__ import annotations
@@ -74,6 +75,47 @@ def lint(corpus: dict) -> tuple[list[str], list[str]]:
     return issues, hints
 
 
+def check_stories(corpus: dict, stories: list[dict]) -> list[str]:
+    """Problems that make a story say more than its records: an anchor that
+    points nowhere, or a figure no anchored record states."""
+    by_id = {r["id"]: r for r in vc.all_records(corpus)}
+    issues = []
+    for st in stories:
+        where = f"_stories.md {st['id']}"
+        if not st["anchors"]:
+            issues.append(f"{where}: no `anchors:` — a story must retell corpus records")
+            continue
+        missing = [a for a in st["anchors"] if a not in by_id]
+        if missing:
+            issues.append(f"{where}: anchors {', '.join(missing)} match no record")
+        known = set().union(*(vc.figures(vc.record_text(by_id[a])) for a in st["anchors"]
+                              if a in by_id), set())
+        extra = sorted(vc.figures(vc.story_text(st)) - known)
+        if extra:
+            issues.append(f"{where}: figure(s) {', '.join(extra)} appear in no anchored record")
+        empty = [k for k in ("situation", "action", "result") if not st[k]]
+        if empty:
+            issues.append(f"{where}: empty {', '.join(empty)}")
+    return issues
+
+
+def rank_stories(stories: list[dict], corpus: dict, jd: str) -> list[tuple[dict, list[str]]]:
+    """Stories ordered by how many of the posting's terms their records carry."""
+    import vouch_ats
+
+    vocab = vc.vocabulary(corpus)
+    must, nice = vouch_ats.split_requirements(jd, vocab)
+    by_id = {r["id"]: r for r in vc.all_records(corpus)}
+    out = []
+    for st in stories:
+        text = " ".join([vc.story_text(st), *st["tags"],
+                         *(vc.record_text(by_id[a]) for a in st["anchors"] if a in by_id)]).lower()
+        hits = [t for t in [*must, *nice] if vouch_ats.term_present(t, text)]
+        out.append((st, hits))
+    out.sort(key=lambda x: len(x[1]), reverse=True)
+    return out
+
+
 def summary(corpus: dict) -> str:
     records = vc.all_records(corpus)
     prov = Counter(m["provenance"] for r in records for m in r["metrics"])
@@ -127,7 +169,25 @@ def main(argv: list[str] | None = None) -> int:
     n.add_argument("role")
     n.add_argument("start")
     n.add_argument("end", nargs="?", default="present")
+    st = sub.add_parser("stories")
+    st.add_argument("dir")
+    st.add_argument("--jd", help="rank stories for this posting")
     a = p.parse_args(argv)
+
+    if a.cmd == "stories":
+        corpus, stories = vc.load_corpus(a.dir), vc.load_stories(a.dir)
+        if not stories:
+            print("no stories yet — add them to _stories.md (see the stories workflow)")
+            return 0
+        issues = check_stories(corpus, stories)
+        for line in issues:
+            print("error: " + line)
+        if a.jd:
+            for story, hits in rank_stories(stories, corpus, vc.read_text_arg(a.jd)):
+                print(f"- {story['id']} · {story['title']} — {', '.join(hits) or 'no posting terms'}")
+        elif not issues:
+            print(f"{len(stories)} stories OK")
+        return 1 if issues else 0
 
     if a.cmd == "new":
         path = Path(a.dir).expanduser() / f"{a.id}.md"

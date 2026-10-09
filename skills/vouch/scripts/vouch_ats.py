@@ -137,6 +137,11 @@ def _known_to_corpus(term: str, vocabulary: set[str]) -> bool:
     """
     if term in vocabulary:
         return True
+    # Spelling variants ("node" / "Node.js", "sass" / "SCSS") and versioned
+    # corpus names ("Vue 3", "PostgreSQL 18", "Tailwind CSS v4").
+    unversioned = {re.sub(r"\s+v?\d[\w.]*$", "", v) for v in vocabulary}
+    if any(v in vocabulary or v in unversioned for v in _variants(term)):
+        return True
     # "latex" vs the corpus's "xelatex": a longer name ending in the term.
     # 4+ letters only, so "go" never matches "django".
     # A short prefix only ("xe"+"latex", "pdf"+"latex"): "server"+"less" is
@@ -470,6 +475,8 @@ _SYNONYMS = [
     {"node.js", "nodejs", "node"},
     {"react", "react.js", "reactjs"},
     {"vue", "vue.js", "vuejs"},
+    {"scss", "sass"},
+    {"next.js", "nextjs", "next"},
     {"gcp", "google cloud"},
     {"aws", "amazon web services"},
     {"ci/cd", "ci", "cd"},

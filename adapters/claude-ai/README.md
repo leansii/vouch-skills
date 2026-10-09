@@ -1,7 +1,7 @@
 # Vouch in claude.ai
 
 claude.ai takes skills as single Markdown files (each with its own name and
-description) and doesn't accept Python files. These five files are Vouch split
+description) and doesn't accept Python files. These seven files are Vouch split
 for it — each is self-contained, and the tools it runs are embedded in it as
 code blocks that Claude saves and runs with code execution.
 
@@ -9,25 +9,29 @@ code blocks that Claude saves and runs with code execution.
 |---|---|
 | `vouch-corpus.md` | builds your experience corpus from an old CV or from scratch |
 | `vouch-record.md` | adds one achievement or job through a guided conversation |
+| `vouch-fit.md` | is the posting still open, does it rule you out, how well you fit |
 | `vouch-tailor.md` | writes the CV and cover letter from the corpus |
 | `vouch-verify.md` | checks every line against the corpus |
 | `vouch-ats.md` | simulates an ATS on the CV |
+| `vouch-stories.md` | builds interview stories (STAR) anchored to your records |
 
 ## Install
 
-1. Download the five `.md` files from this folder (or from the latest
+1. Download the seven `.md` files from this folder (or from the latest
    [release](https://github.com/leansii/vouch-skills/releases)).
-2. In claude.ai open **Settings → Capabilities** and turn on **Code execution
-   and file creation** (the tools need it; without it the skills still work,
-   just by hand and without the code checks).
+2. Code execution must be available (it is on by default on most plans; if your
+   **Settings → Capabilities** shows a *Code execution and file creation*
+   toggle, turn it on). Without it the skills still work, just by hand and
+   without the code checks.
 3. Open **Settings → Customize → Skills**, click **Add** (top right) →
-   **Upload a skill**, and select the five files. Each one becomes its own skill.
-4. Make sure all five show as enabled under **Yours**.
+   **Upload a skill**, and select the seven files. Each one becomes its own skill.
+4. Make sure all seven show as enabled under **Yours**.
 
 ## Use
 
 In a new chat: *"Build my experience corpus from this CV"* (attach it), then
-later *"Tailor my resume to this job: …"* with the posting pasted or linked.
+later *"Should I apply to this job? …"* and *"Tailor my resume to this job: …"*
+with the posting pasted or linked, and *"Prepare me for the interview"*.
 Attach your corpus files at the start of each new chat — claude.ai doesn't keep
 files between chats.
 

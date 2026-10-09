@@ -4,7 +4,8 @@ This repository is the **Vouch** skill: honest, job-tailored resumes and cover
 letters where every line traces to the user's experience corpus.
 
 When the user asks to build an experience corpus, tailor a CV or cover letter to a
-job posting, check a CV for unsupported claims, or run an ATS check: read
+job posting, check a CV for unsupported claims, run an ATS check, decide whether
+a posting is worth applying to, or prepare interview stories: read
 `skills/vouch/SKILL.md` first and follow it. Its workflows live in
 `skills/vouch/workflows/`, its rules in `skills/vouch/references/`, and its
 dependency-free Python tools in `skills/vouch/scripts/` (run with `python3`).
