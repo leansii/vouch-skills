@@ -229,6 +229,10 @@ def _parse_verdicts(text: str) -> dict[int, dict]:
 def build_report(claims: list[dict], verdict_text: str, corpus: dict) -> list[dict]:
     by_id = {r["id"]: r for r in vc.all_records(corpus)}
     verdicts = _parse_verdicts(verdict_text)
+    # Every figure the corpus states anywhere. A claim figure outside this set
+    # was invented or inflated ("8+ years", "93-96%") — code says so, whatever
+    # a lenient judge in the drafting context decided (2026-10-09, Antigravity).
+    known = set().union(*(vc.figures(vc.record_text(r)) for r in by_id.values()), set())
     rows = []
     for c in claims:
         v = verdicts.get(c["n"])
@@ -244,6 +248,12 @@ def build_report(claims: list[dict], verdict_text: str, corpus: dict) -> list[di
             rows.append({**c, "action": "unverified", "evidence_id": None, "rejected": True,
                          "reason": f"verdict cites no corpus record ({v.get('evidence_id')!r}) "
                                    "— not accepted; check this line yourself"})
+            continue
+        missing = sorted(vc.figures(c["text"]) - known)
+        if v["supported"] and missing:
+            rows.append({**c, "action": vc.GROUNDING["unsupported"], "evidence_id": v.get("evidence_id"),
+                         "reason": f"figure(s) {', '.join(missing)} appear nowhere in the corpus "
+                                   f"(judge said: {v.get('reason', '')})"})
             continue
         if not v["supported"]:
             action = vc.GROUNDING["unsupported"]

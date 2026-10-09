@@ -226,7 +226,7 @@ def record_provenance(rec: dict | None) -> str | None:
 # a scale word or suffix ("5 million", "3k") makes a single digit a figure.
 _NUM = re.compile(
     r"(?<![A-Za-z\d])(\d+(?:[.,]\d+)?)"
-    r"(\s?(?:[%x×]|million|billion|thousand|млн|млрд|тыс)|[kKmM](?![A-Za-z]))?(?![A-Za-z\d])"
+    r"(\s?(?:[%x×+]|million|billion|thousand|млн|млрд|тыс)|[kKmM](?![A-Za-z]))?(?![A-Za-z\d])"
 )
 
 
@@ -243,6 +243,11 @@ def _numbers(text: str) -> set[str]:
             continue
         out.add(num)
     return out
+
+
+def figures(text: str) -> set[str]:
+    """Public: the figures in a text, as compared across claims and corpus."""
+    return _numbers(text)
 
 
 def claim_provenance(claim: str, rec: dict | None) -> str | None:

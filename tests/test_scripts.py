@@ -213,3 +213,22 @@ def test_supported_verdict_without_a_real_record_is_rejected():
 def test_known_to_corpus_matches_a_longer_name():
     assert vouch_ats._known_to_corpus("latex", {"xelatex"})
     assert not vouch_ats._known_to_corpus("go", {"django"})
+
+
+def test_supported_claim_with_a_figure_the_corpus_lacks_is_overruled():
+    """Antigravity's in-context judge passed "8+ years" and "93-96%"."""
+    claims = [{"n": 1, "text": "Backend engineer with 8+ years and 93% judge accuracy.", "candidates": []},
+              {"n": 2, "text": "Cut p95 latency from 900 ms to 140 ms.", "candidates": []}]
+    verdicts = "\n".join([
+        '{"n": 1, "supported": true, "evidence_id": "northwind-001", "reason": "Experience summary"}',
+        '{"n": 2, "supported": true, "evidence_id": "northwind-001", "reason": "Grafana"}',
+    ])
+    rows = vouch_verify.build_report(claims, verdicts, corpus())
+    assert rows[0]["action"] == "remove_or_verify" and "8, 93" in rows[0]["reason"]
+    assert rows[1]["action"] == "keep"
+
+
+def test_ats_ignores_places_and_unrelated_suffix_matches():
+    assert not vouch_ats._known_to_corpus("less", {"serverless"})
+    must, _ = vouch_ats.split_requirements("Engineer (Vue) - Remote Europe\nRequirements: Vue.", set())
+    assert "europe" not in must and "remote" not in must

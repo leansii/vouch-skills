@@ -139,7 +139,9 @@ def _known_to_corpus(term: str, vocabulary: set[str]) -> bool:
         return True
     # "latex" vs the corpus's "xelatex": a longer name ending in the term.
     # 4+ letters only, so "go" never matches "django".
-    if len(term) >= 4 and any(v.endswith(term) and v != term for v in vocabulary):
+    # A short prefix only ("xe"+"latex", "pdf"+"latex"): "server"+"less" is
+    # another word, not LESS.
+    if len(term) >= 4 and any(v.endswith(term) and 0 < len(v) - len(term) <= 3 for v in vocabulary):
         return True
     singular = term[:-1] if term.endswith("s") and len(term) > 3 else ""
     if singular and singular in vocabulary:
@@ -404,8 +406,13 @@ def _mid_sentence(term: str, text: str) -> bool:
     return False
 
 
+# Places and work modes from a posting's title or header, not requirements.
+_PLACES = {"europe", "emea", "apac", "americas", "latam", "worldwide", "remote", "eu",
+           "uk", "usa", "us", "anywhere"}
+
+
 def _keep_term(term: str, chunk: str, vocabulary: set[str]) -> bool:
-    if term in _NOT_TECH:  # corpus vocab can carry prose ("requirements")
+    if term in _NOT_TECH or term in _PLACES:  # corpus vocab can carry prose ("requirements")
         return False
     if term in vocabulary or not term.isalpha():
         return True  # known to the corpus, or tech-shaped (C++, k8s, ci/cd)
