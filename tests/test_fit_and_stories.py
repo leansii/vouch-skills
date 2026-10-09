@@ -130,3 +130,14 @@ def test_verify_reads_an_html_cv(tmp_path):
         encoding="utf-8")
     md = vc.read_text_arg(str(page))
     assert vouch_verify.cv_claims(md) == ["Rewrote the public tracking API from Django to FastAPI & Redis."]
+
+
+def test_skills_list_items_are_checked_against_records():
+    import vouch_verify
+
+    md = ("## Experience\n- Rewrote the public tracking API from Django to FastAPI.\n"
+          "## Skills\n- Backend: FastAPI, Redis (caching), PostgreSQL\n- Data: Kafka, Rust\n")
+    terms = vouch_verify.skills_terms(md)
+    assert terms == ["FastAPI", "Redis", "PostgreSQL", "Kafka", "Rust"]
+    status = vouch_verify.skill_status(terms, vc.load_corpus(CORPUS))
+    assert status["absent"] == ["Kafka", "Rust"]

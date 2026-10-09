@@ -59,6 +59,11 @@ Actions, decided by code from the verdict and the evidence record's provenance:
 | remove_or_verify | no evidence | rewrite to what the evidence says, cut it, or add the fact to the corpus if it's true |
 | unverified | no readable verdict | the user checks it by eye |
 
+For a CV the report ends with the **skills list**: items no record mentions
+(`✗` — not in the corpus at all: remove) and items known only from an employer's
+`stack:` (`!` — keep only if the user can talk about them; better, add a record).
+The judge never sees the skills list; this check is code only.
+
 Show the report to the user as is. Don't argue a verdict away; if the user says a
 flagged fact is true, the fix is a corpus record (workflows/corpus.md), not a
 rewrite of the verdict.

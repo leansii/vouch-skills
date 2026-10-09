@@ -84,6 +84,11 @@ Actions, decided by code from the verdict and the evidence record's provenance:
 | remove_or_verify | no evidence | rewrite to what the evidence says, cut it, or add the fact to the corpus if it's true |
 | unverified | no readable verdict | the user checks it by eye |
 
+For a CV the report ends with the **skills list**: items no record mentions
+(`✗` — not in the corpus at all: remove) and items known only from an employer's
+`stack:` (`!` — keep only if the user can talk about them; better, add a record).
+The judge never sees the skills list; this check is code only.
+
 Show the report to the user as is. Don't argue a verdict away; if the user says a
 flagged fact is true, the fix is a corpus record (the vouch-corpus skill), not a
 rewrite of the verdict.
@@ -577,6 +582,50 @@ def cv_claims(md: str) -> list[str]:
     return claims
 
 
+def skills_terms(md: str) -> list[str]:
+    """Items of a CV's skills section ("Frontend: Vue 3, Pinia, …"). Bullets
+    there aren't claims the judge can weigh, but each item still says "I can
+    work with this" — so code checks each against the records."""
+    out, in_skills = [], False
+    for line in strip_frontmatter(md).splitlines():
+        h = re.match(r"^#{1,6}\s+(.*)", line)
+        if h:
+            in_skills = "skill" in h.group(1).lower() or "навык" in h.group(1).lower()
+            continue
+        if not in_skills or not line.strip():
+            continue
+        text = re.sub(r"^\s*[-*•]\s*", "", line)
+        text = re.sub(r"^[^:,]{1,30}:\s*", "", text)  # "Frontend: …"
+        text = re.sub(r"\([^)]*\)", "", text)  # "Playwright (E2E, visual regression)"
+        out += [t.strip(" .") for t in re.split(r"[,;·|]", text) if t.strip(" .")]
+    return out
+
+
+def _norm(term: str) -> str:
+    t = re.sub(r"[^a-z0-9+#]", "", term.lower())
+    if len(t) > 4 and t.endswith("js"):
+        t = t[:-2]  # Vue.js, NodeJS
+    return re.sub(r"(?<=[a-z]{3})\d+$", "", t)  # Vue 3, PostgreSQL 18
+
+
+def skill_status(terms: list[str], corpus: dict) -> dict[str, list[str]]:
+    """{"stack_only": known only from an employer's stack list, "absent": nowhere}."""
+    records = vc.all_records(corpus)
+    rec_names = {_norm(t) for r in records for t in [*r["stack"], *r["skills"], *r["jd_keywords"]]}
+    rec_text = " ".join(_norm(w) for r in records for w in re.split(r"\s+", vc.record_text(r)))
+    rec_flat = re.sub(r"\s+", "", rec_text)
+    file_names = {_norm(t) for f in corpus["files"] for t in [*f["stack"], *f["skills"], *f["domains"]]}
+    out: dict[str, list[str]] = {"stack_only": [], "absent": []}
+    for term in terms:
+        n = _norm(term)
+        if not n:
+            continue
+        if n in rec_names or n in rec_text.split() or (len(n) >= 5 and n in rec_flat):
+            continue
+        out["stack_only" if n in file_names else "absent"].append(term)
+    return out
+
+
 def letter_claims(md: str, vocab: set[str], company: str = "") -> list[str]:
     """Prose sentences that assert something checkable: a number or a corpus term.
     Sentences about the hiring company (no first person, names it) are skipped —
@@ -798,6 +847,17 @@ _LABEL = {
 }
 
 
+def render_skills(status: dict[str, list[str]]) -> str:
+    lines = []
+    if status.get("absent"):
+        lines.append("- ✗ skills list — not in your corpus at all, remove or add a record: "
+                     + ", ".join(status["absent"]))
+    if status.get("stack_only"):
+        lines.append("- ! skills list — only in an employer's stack, no record says what you did "
+                     "(be ready to talk about it, or cut it): " + ", ".join(status["stack_only"]))
+    return "\n".join(lines)
+
+
 def render_markdown(rows: list[dict]) -> str:
     counts = {a: sum(r["action"] == a for r in rows) for a in _LABEL}
     head = (f"**{counts['keep'] + counts['soften'] + counts['flag']} of {len(rows)} lines "
@@ -838,14 +898,23 @@ def main(argv: list[str] | None = None) -> int:
         Path(a.out).write_text(text, encoding="utf-8")
         Path(a.out + ".claims.json").write_text(json.dumps(claims, ensure_ascii=False, indent=2),
                                                 encoding="utf-8")
+        if a.kind == "cv":
+            status = skill_status(skills_terms(vc.read_text_arg(a.doc)), corpus)
+            Path(a.out + ".skills.json").write_text(json.dumps(status, ensure_ascii=False),
+                                                    encoding="utf-8")
         print(f"{len(claims)} claims → {a.out}")
         return 0
     claims = json.loads(Path(a.packet + ".claims.json").read_text(encoding="utf-8"))
     rows = build_report(claims, vc.read_text_arg(a.verdicts), corpus)
+    skills_file = Path(a.packet + ".skills.json")
+    status = json.loads(skills_file.read_text(encoding="utf-8")) if skills_file.is_file() else {}
     if a.json:
-        vc.emit(rows)
+        vc.emit({"lines": rows, "skills": status})
     else:
         print(render_markdown(rows))
+        extra = render_skills(status)
+        if extra:
+            print("\n" + extra)
     return 0
 
 
