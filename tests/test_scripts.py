@@ -167,7 +167,7 @@ def test_ats_reads_docx_without_pandoc(tmp_path, monkeypatch):
     assert "Python FastAPI" in vouch_ats.extract_text(doc)
 
 
-# --- regressions from the first real-corpus run (Reedsy posting) -----------------
+# --- regressions from real-world runs ----------------------------------------------
 
 
 def test_names_and_bare_digits_are_not_figures():
