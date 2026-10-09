@@ -11,7 +11,9 @@ python3 scripts/vouch_verify.py packet <cv.md> --corpus <dir> --out <application
 # cover letter: add  --kind letter --company "<Company>"
 ```
 
-The packet holds the judge instructions, the evidence (the whole corpus when it's
+The document can be Markdown, plain text or HTML — e.g. a CV another tool
+rendered, such as career-ops' `output/cv-*.html` (see `docs/career-ops.md` in
+the repo). The packet holds the judge instructions, the evidence (the whole corpus when it's
 small, else the records that share terms with each claim) and numbered claims.
 
 ## 2. Judge in a clean context

@@ -118,3 +118,15 @@ def test_thin_terms_live_only_in_a_stack_list(tmp_path):
     jd = "Requirements: Python, MongoDB, LaTeX."
     r = vouch_fit.assess_fit(jd, vc.load_corpus(tmp_path))
     assert r["thin"] == ["mongodb"]
+
+
+def test_verify_reads_an_html_cv(tmp_path):
+    import vouch_verify
+
+    page = tmp_path / "cv.html"
+    page.write_text(
+        "<style>x{}</style><h2>Experience</h2><ul><li>Rewrote the public tracking API "
+        "from Django to FastAPI &amp; Redis.</li></ul><h2>Skills</h2><ul><li>Python, Go, Rust, Kafka</li></ul>",
+        encoding="utf-8")
+    md = vc.read_text_arg(str(page))
+    assert vouch_verify.cv_claims(md) == ["Rewrote the public tracking API from Django to FastAPI & Redis."]

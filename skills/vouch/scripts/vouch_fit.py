@@ -16,7 +16,7 @@ Nothing here blocks anything: the report goes to the human, who decides.
     python vouch_fit.py live URL|FILE [--json]
 
 The closed-posting phrases are adapted from career-ops' liveness-core.mjs
-(https://github.com/santifer/career-ops, MIT License, Copyright (c) 2026
+(https://github.com/career-ops-hq/career-ops, MIT License, Copyright (c) 2026
 Santiago Fernández de Valderrama). Russian phrases and the eligibility
 patterns come from the Vouch bot.
 """

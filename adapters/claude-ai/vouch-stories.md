@@ -462,7 +462,24 @@ def emit(obj) -> None:
 
 
 def read_text_arg(path: str) -> str:
-    return sys.stdin.read() if path == "-" else Path(path).expanduser().read_text(encoding="utf-8")
+    if path == "-":
+        return sys.stdin.read()
+    text = Path(path).expanduser().read_text(encoding="utf-8")
+    return html_to_markdown(text) if path.lower().endswith((".html", ".htm")) else text
+
+
+def html_to_markdown(html: str) -> str:
+    """Enough Markdown for claim extraction from an HTML CV (career-ops renders
+    `cv.html`): headings become `##`, list items `- `, block ends line breaks."""
+    import html as _html
+
+    t = re.sub(r"(?is)<(script|style|head)\b.*?</\1>", "", html)
+    t = re.sub(r"(?i)<h[1-6][^>]*>", "\n\n## ", t)
+    t = re.sub(r"(?i)<li[^>]*>", "\n- ", t)
+    t = re.sub(r"(?i)</(h[1-6]|p|div|section|ul|ol|li|tr|header)>|<br\s*/?>", "\n", t)
+    t = _html.unescape(re.sub(r"<[^>]+>", "", t))
+    lines = [re.sub(r"[ \t]+", " ", ln).strip() for ln in t.splitlines()]
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).strip() + "\n"
 ```
 
 ### /tmp/vouch/vouch_ats.py

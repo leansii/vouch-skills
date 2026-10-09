@@ -89,9 +89,9 @@ Python 3.9+ for the scripts (standard library only). Optional: `pdftotext`
 ## Status
 
 v0.2 — corpus, record, fit, tailor, verify, ATS and interview-story workflows.
-Next: an integration with [career-ops](https://github.com/santifer/career-ops)
-to verify the CVs it generates, and a public eval of how often popular models
-invent resume lines.
+Works next to [career-ops](https://github.com/career-ops-hq/career-ops) as a
+second check on the CVs it generates — see [docs/career-ops.md](docs/career-ops.md).
+Next: a public eval of how often popular models invent resume lines.
 
 Vouch grew out of a Telegram bot with a measured pipeline: on a hand-labelled set
 of 342 claims its judge scores 97% accuracy, missing 1 of 52 fabrications with a
