@@ -27,8 +27,12 @@ It reports:
   many records answer the posting. ≥ 3 reads "worth tailoring".
 - **Covered** and **gaps** — gaps are what the corpus never mentions; they will
   not be written, and the score shows how much that costs.
+- **Thin** — terms known only from an employer's `stack:` list, with no record
+  saying what was done with them. They count as covered, but there is nothing to
+  write a line from: suggest adding a record (`workflows/record.md`) if it's real.
 - **Eligibility** — quoted sentences that may rule the user out: no visa
-  sponsorship, must be based in X, a language their `_profile.md` doesn't list.
+  sponsorship, must be based in X, a region they don't live in ("Remote Europe"
+  vs a `location:` in Bangkok), a language their `_profile.md` doesn't list.
   Never averaged into the score: a perfect match can still be impossible.
 
 Treat the term lists as a rough cut — the extractor is lexical and lets some

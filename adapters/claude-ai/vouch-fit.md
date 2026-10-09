@@ -52,8 +52,12 @@ It reports:
   many records answer the posting. ≥ 3 reads "worth tailoring".
 - **Covered** and **gaps** — gaps are what the corpus never mentions; they will
   not be written, and the score shows how much that costs.
+- **Thin** — terms known only from an employer's `stack:` list, with no record
+  saying what was done with them. They count as covered, but there is nothing to
+  write a line from: suggest adding a record (the vouch-record skill) if it's real.
 - **Eligibility** — quoted sentences that may rule the user out: no visa
-  sponsorship, must be based in X, a language their `_profile.md` doesn't list.
+  sponsorship, must be based in X, a region they don't live in ("Remote Europe"
+  vs a `location:` in Bangkok), a language their `_profile.md` doesn't list.
   Never averaged into the score: a perfect match can still be impossible.
 
 Treat the term lists as a rough cut — the extractor is lexical and lets some
@@ -1162,6 +1166,13 @@ def assess_fit(jd: str, corpus: dict, profile: dict | None = None) -> dict:
     else:
         coverage = MUST_WEIGHT * m + (1 - MUST_WEIGHT) * n
     records = _answering_records(must_cov + nice_cov, corpus)
+    # Known only from an employer's stack list: no record says what was done with it.
+    texts = [vc.record_text(r).lower() for r in vc.all_records(corpus)]
+    rec_vocab = {t.lower() for r in vc.all_records(corpus)
+                 for t in [*r["stack"], *r["skills"], *r["jd_keywords"]]}
+    thin = [t for t in must_cov + nice_cov
+            if not vouch_ats._known_to_corpus(t, rec_vocab)
+            and not any(vouch_ats.term_present(t, x) for x in texts)]
     evidence = min(1.0, len(records) / EVIDENCE_FULL_RECORDS)
     score = round(1.0 + 4.0 * (COVERAGE * coverage + EVIDENCE * evidence), 1)
     elig = check_eligibility(jd, profile or {})
@@ -1169,7 +1180,7 @@ def assess_fit(jd: str, corpus: dict, profile: dict | None = None) -> dict:
         "score": score, "recommended": score >= RECOMMEND,
         "coverage": round(coverage, 3), "evidence": round(evidence, 3),
         "must": must, "must_covered": must_cov, "nice": nice, "nice_covered": nice_cov,
-        "gaps": gaps, "records": records, "eligibility": elig,
+        "gaps": gaps, "thin": thin, "records": records, "eligibility": elig,
     }
 
 
@@ -1178,6 +1189,13 @@ def assess_fit(jd: str, corpus: dict, profile: dict | None = None) -> dict:
 _LANGS = ("mandarin|chinese|cantonese|thai|japanese|korean|vietnamese|indonesian|malay|hindi|"
           "arabic|hebrew|turkish|german|french|spanish|portuguese|italian|dutch|polish|czech|"
           "swedish|norwegian|danish|finnish|greek|ukrainian|tagalog|russian|english")
+_REGIONS = ("europe|european union|eu|emea|eea|uk|united kingdom|usa|us|united states|"
+            "north america|canada|latam|latin america|apac|asia|germany|netherlands|"
+            "spain|portugal|france|poland|ireland|israel|india|australia|singapore")
+_EUROPE = ("europe eu emea eea uk united kingdom germany netherlands spain portugal france "
+           "poland ireland italy austria belgium czech denmark estonia finland greece hungary "
+           "latvia lithuania luxembourg norway romania serbia sweden switzerland cyprus "
+           "croatia slovakia slovenia bulgaria montenegro georgia armenia")
 _RU_LANGS = {"китайск": "chinese", "тайск": "thai", "японск": "japanese", "корейск": "korean",
              "немецк": "german", "французск": "french", "испанск": "spanish",
              "арабск": "arabic", "турецк": "turkish", "английск": "english"}
@@ -1209,6 +1227,13 @@ ELIGIBILITY = {
         "work authorization": [
             r"must\s+(?:already\s+)?(?:be|have)\s+(?:legally\s+)?authorized\s+to\s+work",
             r"must\s+have\s+(?:the\s+)?right\s+to\s+work",
+        ],
+        # A region the posting hires from — checked against `_profile.md`.
+        "location": [
+            rf"(?:based|located|living|residing|remote|work(?:ing)?|applicants?|candidates?)\s+"
+            rf"(?:anywhere\s+|only\s+)?(?:in|within|from|across)\s+(?:the\s+)?({_REGIONS})\b",
+            rf"\bremote\s*[-–—,(/|]?\s*\(?({_REGIONS})\b",
+            rf"\b({_REGIONS})[\s-]+(?:based|only|remote)\b",
         ],
         "language": [
             rf"(?:fluent|fluency|native|proficien\w*|speak\w*|command\s+of|knowledge\s+of)\s+(?:in\s+|level\s+|speaker\s+of\s+)?({_LANGS})\b",
@@ -1242,6 +1267,20 @@ def _profile_languages(profile: dict) -> set[str]:
     return found
 
 
+def _lives_in(region: str, location: str) -> bool:
+    """Does the profile's location already sit in the region the posting names?"""
+    loc = location.lower()
+    if not loc:
+        return False
+    if region in loc:
+        return True
+    if region in ("europe", "european union", "eu", "emea", "eea"):
+        return any(re.search(rf"\b{c}\b", loc) for c in _EUROPE.split())
+    if region in ("us", "usa", "united states"):
+        return bool(re.search(r"\b(us|usa|united states)\b", loc))
+    return False
+
+
 def check_eligibility(jd: str, profile: dict) -> dict:
     """{verdict: clear|warning|blocker, findings: [{kind, level, quote}], offers: [...]}"""
     spoken = _profile_languages(profile)
@@ -1252,6 +1291,11 @@ def check_eligibility(jd: str, profile: dict) -> dict:
                 m = re.search(pat, jd, re.IGNORECASE)
                 if not m:
                     continue
+                if kind == "location" and level == "warning":
+                    if m.group(1) == "us" or m.group(1) == "Us":  # the pronoun, not the country
+                        continue
+                    if _lives_in(m.group(1).lower(), str(profile.get("location", ""))):
+                        continue
                 if kind == "language":
                     lang = m.group(1).lower()
                     lang = _RU_LANGS.get(lang, lang)
@@ -1395,6 +1439,9 @@ def render_fit(r: dict) -> str:
              f"{', '.join(r['nice_covered']) or '—'}",
              f"- gaps (not in your corpus — never claim them): {', '.join(r['gaps']) or 'none'}",
              f"- records that answer it: {len(r['records'])}"]
+    if r["thin"]:
+        lines.insert(4, f"- thin (only in a stack list, no record says what you did): "
+                        f"{', '.join(r['thin'])}")
     if e["findings"]:
         head = {"blocker": "**Eligibility: blocker**", "warning": "**Eligibility: check**",
                 "clear": "Eligibility"}[e["verdict"]]

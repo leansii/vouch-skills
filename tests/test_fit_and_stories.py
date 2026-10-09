@@ -98,3 +98,23 @@ def test_story_with_a_new_figure_or_dangling_anchor_fails(tmp_path):
     issues = vouch_corpus.check_stories(vc.load_corpus(tmp_path), vc.load_stories(tmp_path))
     assert any("st-001" in i and "95" in i for i in issues)
     assert any("st-002" in i and "northwind-999" in i for i in issues)
+
+
+def test_location_region_is_checked_against_the_profile():
+    jd = "Senior Engineer - Remote Europe\nWe welcome applicants based anywhere in Europe."
+    far = vouch_fit.check_eligibility(jd, {"location": "Bangkok, Thailand · open to relocation"})
+    assert far["verdict"] == "warning" and far["findings"][0]["kind"] == "location"
+    assert vouch_fit.check_eligibility(jd, {"location": "Lisbon, Portugal"})["verdict"] == "clear"
+    assert vouch_fit.check_eligibility("Remote (US only).", {})["verdict"] == "warning"
+    assert vouch_fit.check_eligibility("Questions? Contact us only by email.", {})["verdict"] == "clear"
+
+
+def test_thin_terms_live_only_in_a_stack_list(tmp_path):
+    (tmp_path / "acme.md").write_text(
+        "---\ncompany: Acme\nid: acme\nrole: Engineer\nstart: 2020-01\nend: present\n"
+        "stack: [MongoDB, Python, XeLaTeX]\n---\n\n## Records\n\n"
+        "### acme-001 · Reports\n- what: Built PDF reports in Python with XeLaTeX.\n"
+        "- stack: [Python, XeLaTeX]\n", encoding="utf-8")
+    jd = "Requirements: Python, MongoDB, LaTeX."
+    r = vouch_fit.assess_fit(jd, vc.load_corpus(tmp_path))
+    assert r["thin"] == ["mongodb"]
