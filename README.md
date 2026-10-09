@@ -73,7 +73,7 @@ a prompt. Any model can do the writing and judging.
 | **Claude Code** | `/plugin marketplace add leansii/vouch-skills` then `/plugin install vouch@vouch` | ✅ end to end; the judge runs as a separate `vouch-judge` subagent |
 | **claude.ai** | Seven single-file skills in [adapters/claude-ai](adapters/claude-ai/README.md): Settings → Customize → Skills → Add → Upload a skill, select the seven `.md` files. | ✅ verify, ATS, tailor; the judge runs in the same chat |
 | **Antigravity / Gemini CLI** | `agy plugin install <path to a clone>` or `gemini extensions install https://github.com/leansii/vouch-skills` (uses `GEMINI.md`) | ✅ end to end; the judge runs as a subagent |
-| **Codex / OpenCode / Cursor** | Clone this repo and open it, or copy `skills/vouch/` into your tool's skills folder. `AGENTS.md` points the agent at the skill. | not yet — reports welcome |
+| **Codex / OpenCode / Cursor** | Clone this repo and open it (Codex also finds the skill through `.codex-plugin/plugin.json`), or copy `skills/vouch/` into your tool's skills folder. `AGENTS.md` points the agent at the skill. | not yet — reports welcome |
 | **ChatGPT** | A Custom GPT — see [adapters/chatgpt](adapters/chatgpt/README.md). | not yet — reports welcome |
 
 Then: *"Build my experience corpus from this CV"*, and later *"Tailor my resume

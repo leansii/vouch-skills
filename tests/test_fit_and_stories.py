@@ -138,6 +138,15 @@ def test_skills_list_items_are_checked_against_records():
     md = ("## Experience\n- Rewrote the public tracking API from Django to FastAPI.\n"
           "## Skills\n- Backend: FastAPI, Redis (caching), PostgreSQL\n- Data: Kafka, Rust\n")
     terms = vouch_verify.skills_terms(md)
-    assert terms == ["FastAPI", "Redis", "PostgreSQL", "Kafka", "Rust"]
+    assert terms == ["FastAPI", "Redis", "caching", "PostgreSQL", "Kafka", "Rust"]
     status = vouch_verify.skill_status(terms, vc.load_corpus(CORPUS))
     assert status["absent"] == ["Kafka", "Rust"]
+
+
+def test_skill_phrases_and_slashes_count_as_known():
+    import vouch_verify
+
+    md = "## Skills\n- **Languages:** Python/FastAPI, modern REST APIs and caching\n"
+    terms = vouch_verify.skills_terms(md)
+    assert terms == ["Python", "FastAPI", "modern REST APIs", "caching"]
+    assert vouch_verify.skill_status(terms, vc.load_corpus(CORPUS)) == {"stack_only": [], "absent": []}

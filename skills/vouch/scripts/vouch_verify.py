@@ -93,10 +93,11 @@ def skills_terms(md: str) -> list[str]:
             continue
         if not in_skills or not line.strip():
             continue
-        text = re.sub(r"^\s*[-*•]\s*", "", line)
-        text = re.sub(r"^[^:,]{1,30}:\s*", "", text)  # "Frontend: …"
-        text = re.sub(r"\([^)]*\)", "", text)  # "Playwright (E2E, visual regression)"
-        out += [t.strip(" .") for t in re.split(r"[,;·|]", text) if t.strip(" .")]
+        text = re.sub(r"^\s*[-*•]\s*", "", line).replace("*", "")
+        text = re.sub(r"^[^:,()]{1,30}:\s*", "", text)  # "Frontend: …"
+        # "VueJS (Vue 3, Pinia)", "TypeScript/JavaScript", "HTML and CSS": each a skill.
+        parts = re.split(r"[,;·|()/&]|\s+and\s+", text)
+        out += [t.strip(" .") for t in parts if t.strip(" .")]
     return out
 
 
@@ -107,21 +108,43 @@ def _norm(term: str) -> str:
     return re.sub(r"(?<=[a-z]{3})\d+$", "", t)  # Vue 3, PostgreSQL 18
 
 
+# Words that qualify a skill without naming one ("modern CSS", "LLM applications").
+_FILLER = {"modern", "approach", "advanced", "applications", "application", "based",
+           "development", "tooling", "tools", "the", "of", "with", "for", "in"}
+_ALIASES = {"testdriven": "tdd", "testdrivendevelopment": "tdd", "testdrivenapproach": "tdd"}
+
+
+def _words(text: str) -> set[str]:
+    words = set(re.findall(r"[a-z0-9+#]+", text.lower()))
+    return words | {w[:-1] for w in words if len(w) > 3 and w.endswith("s")}
+
+
 def skill_status(terms: list[str], corpus: dict) -> dict[str, list[str]]:
-    """{"stack_only": known only from an employer's stack list, "absent": nowhere}."""
+    """{"stack_only": known only from an employer's stack list, "absent": nowhere}.
+
+    A one-word item must match a record's tag or text; a phrase ("Single Page
+    Apps", "semantic retrieval") is known when every word that names something is."""
     records = vc.all_records(corpus)
     rec_names = {_norm(t) for r in records for t in [*r["stack"], *r["skills"], *r["jd_keywords"]]}
-    rec_text = " ".join(_norm(w) for r in records for w in re.split(r"\s+", vc.record_text(r)))
-    rec_flat = re.sub(r"\s+", "", rec_text)
+    rec_text = " ".join(vc.record_text(r) for r in records)
+    rec_words = _words(rec_text) | {_norm(w) for w in _words(rec_text)}
+    rec_flat = re.sub(r"[^a-z0-9+#]", "", rec_text.lower())
     file_names = {_norm(t) for f in corpus["files"] for t in [*f["stack"], *f["skills"], *f["domains"]]}
+    file_words = _words(" ".join(t for f in corpus["files"] for t in [*f["stack"], *f["skills"]]))
+
+    def known(term: str, names: set[str], words: set[str], flat: str = "") -> bool:
+        n = _ALIASES.get(_norm(term), _norm(term))
+        if n in names or n in words or (flat and len(n) >= 5 and n in flat):
+            return True
+        content = [w for w in _words(term) if w not in _FILLER and len(w) > 1]
+        content = [w for w in content if not (w.endswith("s") and w[:-1] in content)]
+        return bool(content) and all(w in words for w in content)
+
     out: dict[str, list[str]] = {"stack_only": [], "absent": []}
     for term in terms:
-        n = _norm(term)
-        if not n:
+        if not _norm(term) or known(term, rec_names, rec_words, rec_flat):
             continue
-        if n in rec_names or n in rec_text.split() or (len(n) >= 5 and n in rec_flat):
-            continue
-        out["stack_only" if n in file_names else "absent"].append(term)
+        out["stack_only" if known(term, file_names, file_words) else "absent"].append(term)
     return out
 
 

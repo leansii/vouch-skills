@@ -2,9 +2,11 @@
   "name": "vouch",
   "version": "0.2.4",
   "description": "Honest, job-tailored resumes: an experience corpus with provenance, tailoring that never invents, an isolated judge that grounds every line, and an ATS simulation that separates dropped facts from true gaps.",
-  "author": { "name": "leansii" },
-  "homepage": "https://github.com/leansii/vouch-skills",
-  "repository": "https://github.com/leansii/vouch-skills",
+  "author": {
+    "name": "leansii"
+  },
   "license": "MIT",
-  "keywords": ["resume", "cv", "cover-letter", "job-search", "ats", "grounding"]
+  "skills": [
+    "./skills/vouch"
+  ]
 }
