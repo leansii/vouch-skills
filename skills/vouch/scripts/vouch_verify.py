@@ -159,7 +159,8 @@ def evidence_block(rec: dict) -> str:
 JUDGE_INSTRUCTIONS = """\
 You are a strict grounding checker. You did not write the draft. For each numbered
 CLAIM below, decide whether the EVIDENCE records support every fact in it
-(technologies, numbers, scope, employer, role).
+(technologies, numbers, scope, employer, role). Everything you need is in this
+file: do not run commands, search, or open other files.
 
 - Records combine: a claim merging facts from several records is supported when
   each fact is covered by some record (cite the strongest as evidence_id).
@@ -167,7 +168,9 @@ CLAIM below, decide whether the EVIDENCE records support every fact in it
   record states makes the claim NOT supported.
 - Attribution: if the claim says the candidate built/created something but the
   evidence (often a team: or note: line) says a team built it while the candidate
-  led, helped or contributed, it is NOT supported.
+  led, helped or contributed, it is NOT supported. The same for any verb stronger
+  than the evidence: authored vs contributed to, led vs took part in, designed vs
+  implemented, owned vs worked on.
 - A stated analogy ("services on Pub/Sub, the same pattern as Kafka") is supported
   only for the part claimed as done; hands-on work with the analogue needs its own
   evidence. Recasting a fact into a domain or industry it did not have is not supported.

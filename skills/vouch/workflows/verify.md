@@ -19,8 +19,12 @@ small, else the records that share terms with each claim) and numbered claims.
 Pick the strongest isolation your environment offers:
 
 1. **A separate agent / subagent** with no access to this conversation (in Claude
-   Code: the `vouch-judge` agent; elsewhere, any "run a sub-task" facility). Give it
-   only the packet file. It writes one JSON line per claim to `verdicts.jsonl`.
+   Code: the `vouch-judge` agent; in Antigravity: `invoke_subagent`; elsewhere, any
+   "run a sub-task" facility). Give it only the packet path and the verdicts path,
+   and tell it to read the packet and write the file — no commands. It writes one
+   JSON line per claim to `verdicts.jsonl`. **Wait for it to finish** (it can take
+   a few minutes); if it stops to ask for a permission, ask the user to approve it.
+   Never stop a judge and fill in its verdicts yourself.
 2. **No sub-agents** (e.g. a plain chat): judge the packet yourself as a distinct
    step — read only the packet, forget the drafting rationale, answer each claim
    strictly from the evidence text. Say to the user that this pass ran in the same

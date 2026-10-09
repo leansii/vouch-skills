@@ -1,6 +1,6 @@
 {
   "name": "vouch",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Honest, job-tailored resumes: an experience corpus with provenance, tailoring that never invents, an isolated judge that grounds every line, and an ATS simulation that separates dropped facts from true gaps.",
   "author": { "name": "leansii" },
   "homepage": "https://github.com/leansii/vouch-skills",

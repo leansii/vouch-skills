@@ -7,7 +7,8 @@ than you are. A Kafka you never ran, a fintech you never worked in, "built" wher
 you led the people who built it. It reads fine, it passes the ATS, and it falls
 apart in the first interview.
 
-Vouch is an Agent Skill for Claude, Codex, Gemini CLI / Antigravity and ChatGPT
+Vouch is an Agent Skill for Claude Code, claude.ai and Antigravity (Codex and ChatGPT
+adapters included, untested)
 that tailors your CV and cover letter to a job posting **only from facts you've
 recorded**, then checks every line in a separate pass that never saw the draft
 being written.
@@ -63,13 +64,13 @@ a prompt. Any model can do the writing and judging.
 
 ## Install
 
-| Tool | How |
-|---|---|
-| **Claude Code** | `/plugin marketplace add leansii/vouch-skills` then `/plugin install vouch@vouch` |
-| **claude.ai** | Five single-file skills in [adapters/claude-ai](adapters/claude-ai/README.md): Settings → Customize → Skills → Add → Upload a skill, select the five `.md` files. Turn on code execution in Capabilities. |
-| **Codex / OpenCode / Pi / Cursor** | Clone this repo and open it, or copy `skills/vouch/` into your tool's skills folder. `AGENTS.md` points the agent at the skill. |
-| **Gemini CLI / Antigravity** | `gemini extensions install https://github.com/leansii/vouch-skills` (uses `GEMINI.md`), or clone and open the folder. |
-| **ChatGPT** | A Custom GPT — see [adapters/chatgpt](adapters/chatgpt/README.md). |
+| Tool | How | Tested |
+|---|---|---|
+| **Claude Code** | `/plugin marketplace add leansii/vouch-skills` then `/plugin install vouch@vouch` | ✅ end to end; the judge runs as a separate `vouch-judge` subagent |
+| **claude.ai** | Five single-file skills in [adapters/claude-ai](adapters/claude-ai/README.md): Settings → Customize → Skills → Add → Upload a skill, select the five `.md` files. Code execution must be on. | ✅ verify, ATS, tailor; the judge runs in the same chat |
+| **Antigravity / Gemini CLI** | `agy plugin install <path to a clone>` or `gemini extensions install https://github.com/leansii/vouch-skills` (uses `GEMINI.md`) | ✅ end to end; the judge runs as a subagent |
+| **Codex / OpenCode / Cursor** | Clone this repo and open it, or copy `skills/vouch/` into your tool's skills folder. `AGENTS.md` points the agent at the skill. | not yet — reports welcome |
+| **ChatGPT** | A Custom GPT — see [adapters/chatgpt](adapters/chatgpt/README.md). | not yet — reports welcome |
 
 Then: *"Build my experience corpus from this CV"*, and later *"Tailor my resume
 to this job: <paste or URL>"*.

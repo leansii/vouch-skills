@@ -9,7 +9,16 @@ job posting, check a CV for unsupported claims, or run an ATS check: read
 Rules: `skills/vouch/references/`. Tools (Python 3, no dependencies):
 `skills/vouch/scripts/`.
 
-For verification, judge the packet in a fresh session or sub-agent that receives
-only the packet file, so it never sees how the draft was written. Judge every
-claim against the evidence; never fill the verdicts file yourself with blanket
-"supported" lines — the report rejects verdicts that cite no corpus record.
+For verification, judge the packet with `invoke_subagent` (one subagent per
+packet), so the judge never sees how the draft was written. Its prompt, in full:
+
+> Read `<packet path>`. Follow its instructions exactly. Do not run commands or
+> open any other file. Write one JSON line per claim, nothing else, to
+> `<verdicts path>`, then reply with how many claims you judged and how many were
+> unsupported.
+
+Then wait for the subagent's completion message — don't poll and kill it. If it
+waits for a permission, ask the user to approve. Only if subagents are
+unavailable, judge the packet yourself claim by claim and tell the user it ran in
+the same conversation. Never fill the verdicts file with blanket "supported"
+lines — the report rejects verdicts that cite no corpus record.

@@ -44,8 +44,12 @@ small, else the records that share terms with each claim) and numbered claims.
 Pick the strongest isolation your environment offers:
 
 1. **A separate agent / subagent** with no access to this conversation (in Claude
-   Code: the `vouch-judge` agent; elsewhere, any "run a sub-task" facility). Give it
-   only the packet file. It writes one JSON line per claim to `verdicts.jsonl`.
+   Code: the `vouch-judge` agent; in Antigravity: `invoke_subagent`; elsewhere, any
+   "run a sub-task" facility). Give it only the packet path and the verdicts path,
+   and tell it to read the packet and write the file — no commands. It writes one
+   JSON line per claim to `verdicts.jsonl`. **Wait for it to finish** (it can take
+   a few minutes); if it stops to ask for a permission, ask the user to approve it.
+   Never stop a judge and fill in its verdicts yourself.
 2. **No sub-agents** (e.g. a plain chat): judge the packet yourself as a distinct
    step — read only the packet, forget the drafting rationale, answer each claim
    strictly from the evidence text. Say to the user that this pass ran in the same
@@ -588,7 +592,8 @@ def evidence_block(rec: dict) -> str:
 JUDGE_INSTRUCTIONS = """\
 You are a strict grounding checker. You did not write the draft. For each numbered
 CLAIM below, decide whether the EVIDENCE records support every fact in it
-(technologies, numbers, scope, employer, role).
+(technologies, numbers, scope, employer, role). Everything you need is in this
+file: do not run commands, search, or open other files.
 
 - Records combine: a claim merging facts from several records is supported when
   each fact is covered by some record (cite the strongest as evidence_id).
@@ -596,7 +601,9 @@ CLAIM below, decide whether the EVIDENCE records support every fact in it
   record states makes the claim NOT supported.
 - Attribution: if the claim says the candidate built/created something but the
   evidence (often a team: or note: line) says a team built it while the candidate
-  led, helped or contributed, it is NOT supported.
+  led, helped or contributed, it is NOT supported. The same for any verb stronger
+  than the evidence: authored vs contributed to, led vs took part in, designed vs
+  implemented, owned vs worked on.
 - A stated analogy ("services on Pub/Sub, the same pattern as Kafka") is supported
   only for the part claimed as done; hands-on work with the analogue needs its own
   evidence. Recasting a fact into a domain or industry it did not have is not supported.
