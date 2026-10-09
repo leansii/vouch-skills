@@ -243,3 +243,7 @@ def test_years_of_experience_derive_from_employer_dates():
     v = '{"n": 1, "supported": true, "evidence_id": "northwind-001", "reason": "dated roles"}'
     rows = vouch_verify.build_report(claims, v, corpus())
     assert rows[0]["action"] != "remove_or_verify"
+
+
+def test_figures_read_decimal_commas_and_thousands():
+    assert vc.figures("1,2 млн users, 1,200 orders, since 2018") == {"1.2", "1200"}

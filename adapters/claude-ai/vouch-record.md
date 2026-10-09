@@ -527,7 +527,8 @@ def _numbers(text: str) -> set[str]:
     metrics ("working in Python since 2018" has nothing to soften)."""
     out = set()
     for num, unit in _NUM.findall(text):
-        num = num.replace(",", "")
+        # "1,200" groups thousands; "1,2 млн" is a decimal comma.
+        num = re.sub(r",(?=\d{3}$)", "", num).replace(",", ".")
         if _YEAR.match(num) or (len(num) == 1 and not unit):
             continue
         out.add(num)
