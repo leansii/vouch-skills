@@ -819,7 +819,9 @@ def _derived_years(corpus: dict, today: tuple[int, int] | None = None) -> set[st
     if starts:
         a = min(starts)
         spans.add((now[0] * 12 + now[1] - a[0] * 12 - a[1]) // 12)
-    return {str(n) for n in spans if n >= 1}
+    # "N+ years" is true for any N up to the longest span; the judge still
+    # decides whether the claim's wording fits the roles behind it.
+    return {str(n) for n in range(1, max(spans, default=0) + 1)}
 
 
 def build_report(claims: list[dict], verdict_text: str, corpus: dict) -> list[dict]:
