@@ -53,6 +53,17 @@ def test_language_warning_skips_languages_the_profile_lists():
     assert vouch_fit.check_eligibility("Fluent English required.", ru)["verdict"] == "clear"
 
 
+def test_language_list_flags_the_language_the_profile_lacks():
+    profile = {"languages": ["English C1", "Russian native"]}
+    for jd in ("You are fluent in English and Korean native.",
+               "You are proficient in both, English and Korean native.",
+               "Fluency in English. Later: you are fluent in English and Korean."):
+        e = vouch_fit.check_eligibility(jd, profile)
+        assert e["verdict"] == "warning", jd
+        assert "Korean" in e["findings"][0]["quote"]
+    assert vouch_fit.check_eligibility("Fluent in English and Russian.", profile)["verdict"] == "clear"
+
+
 def test_liveness_reads_saved_pages(tmp_path):
     closed = tmp_path / "closed.html"
     closed.write_text("<h1>Engineer</h1><p>We are no longer accepting applications.</p>")

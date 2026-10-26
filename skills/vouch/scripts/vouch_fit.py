@@ -107,6 +107,7 @@ _EUROPE = ("europe eu emea eea uk united kingdom germany netherlands spain portu
            "poland ireland italy austria belgium czech denmark estonia finland greece hungary "
            "latvia lithuania luxembourg norway romania serbia sweden switzerland cyprus "
            "croatia slovakia slovenia bulgaria montenegro georgia armenia")
+_LANG_LIST = rf"(?:{_LANGS})(?:\s*(?:,|/|&|\band\b|\bor\b)\s*(?:{_LANGS}))*"
 _RU_LANGS = {"китайск": "chinese", "тайск": "thai", "японск": "japanese", "корейск": "korean",
              "немецк": "german", "французск": "french", "испанск": "spanish",
              "арабск": "arabic", "турецк": "turkish", "английск": "english"}
@@ -147,8 +148,11 @@ ELIGIBILITY = {
             rf"\b({_REGIONS})[\s-]+(?:based|only|remote)\b",
         ],
         "language": [
-            rf"(?:fluent|fluency|native|proficien\w*|speak\w*|command\s+of|knowledge\s+of)\s+(?:in\s+|level\s+|speaker\s+of\s+)?({_LANGS})\b",
-            rf"\b({_LANGS})\s+(?:language\s+)?(?:is\s+|are\s+)?(?:required|mandatory|essential)",
+            # "fluent in English and Korean": the group takes the whole list, so a
+            # spoken first language does not hide the one that rules you out.
+            rf"(?:fluent|fluency|native|proficien\w*|speak\w*|command\s+of|knowledge\s+of)\s+"
+            rf"(?:in\s+|level\s+|speaker\s+of\s+)?(?:both,?\s+)?({_LANG_LIST})\b",
+            rf"\b({_LANG_LIST})\s+(?:language\s+)?(?:is\s+|are\s+)?(?:required|mandatory|essential)",
             r"(?:свободн\w+|владени\w+)\s+(китайск|тайск|японск|корейск|немецк|французск|испанск|арабск|турецк|английск)\w*",
         ],
     },
@@ -192,6 +196,21 @@ def _lives_in(region: str, location: str) -> bool:
     return False
 
 
+def _unspoken_language(pat: str, jd: str, spoken: set[str]) -> re.Match | None:
+    """First match of `pat` naming a language the profile doesn't list.
+
+    Every match is checked, and every language inside one: "Fluency in English"
+    early in a posting must not hide "fluent in English and Korean" later.
+    """
+    for m in re.finditer(pat, jd, re.IGNORECASE):
+        named = re.findall(_LANGS, m.group(1).lower()) or [m.group(1).lower()]
+        for lang in (_RU_LANGS.get(x, x) for x in named):
+            if lang in spoken or (not spoken and lang in ("english", "russian")):
+                continue
+            return m
+    return None
+
+
 def check_eligibility(jd: str, profile: dict) -> dict:
     """{verdict: clear|warning|blocker, findings: [{kind, level, quote}], offers: [...]}"""
     spoken = _profile_languages(profile)
@@ -199,7 +218,10 @@ def check_eligibility(jd: str, profile: dict) -> dict:
     for level, kinds in ELIGIBILITY.items():
         for kind, patterns in kinds.items():
             for pat in patterns:
-                m = re.search(pat, jd, re.IGNORECASE)
+                if kind == "language":
+                    m = _unspoken_language(pat, jd, spoken)
+                else:
+                    m = re.search(pat, jd, re.IGNORECASE)
                 if not m:
                     continue
                 if kind == "location" and level == "warning":
@@ -207,12 +229,7 @@ def check_eligibility(jd: str, profile: dict) -> dict:
                         continue
                     if _lives_in(m.group(1).lower(), str(profile.get("location", ""))):
                         continue
-                if kind == "language":
-                    lang = m.group(1).lower()
-                    lang = _RU_LANGS.get(lang, lang)
-                    if lang in spoken or (not spoken and lang in ("english", "russian")):
-                        continue
-                item = {"kind": kind, "level": level, "quote": _quote(jd, m.start(), m.end())}
+                item ={"kind": kind, "level": level, "quote": _quote(jd, m.start(), m.end())}
                 (offers if level == "positive" else findings).append(item)
                 break  # one finding per kind is enough to act on
     verdict = "clear"
